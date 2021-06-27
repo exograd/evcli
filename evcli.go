@@ -1,10 +1,15 @@
 package main
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/galdor/go-cmdline"
 )
+
+type Client struct {
+	Config *Config
+}
 
 func main() {
 	// Command line
@@ -17,8 +22,19 @@ func main() {
 
 	cl.Parse(os.Args)
 
+	// Config
+	config, err := LoadConfig()
+	if err != nil {
+		die("cannot load configuration: %v", err)
+	}
+
+	// Client
+	client := &Client{
+		Config: config,
+	}
+
 	// Commands
-	var cmd func([]string)
+	var cmd func([]string, *Client)
 
 	switch cl.CommandName() {
 	case "config":
@@ -26,5 +42,10 @@ func main() {
 	}
 
 	// Main
-	cmd(cl.CommandNameAndArguments())
+	cmd(cl.CommandNameAndArguments(), client)
+}
+
+func die(format string, args ...interface{}) {
+	fmt.Fprintf(os.Stderr, format+"\n", args...)
+	os.Exit(1)
 }
