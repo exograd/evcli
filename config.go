@@ -27,6 +27,8 @@ func LoadConfig() (*Config, error) {
 
 	filePath := ConfigPath()
 
+	trace("loading configuration from %s", filePath)
+
 	if err := config.LoadFile(filePath); err != nil {
 		return nil, errors.Wrapf(err, "cannot load %q", filePath)
 	}
@@ -41,7 +43,7 @@ func ConfigPath() string {
 
 	homePath, err := os.UserHomeDir()
 	if err != nil {
-		panic(errors.Wrap(err, "cannot locate user home directory"))
+		die("cannot locate user home directory: %v", err)
 	}
 
 	return path.Join(homePath, ".evcli", "config.json")

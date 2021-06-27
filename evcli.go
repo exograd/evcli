@@ -7,6 +7,11 @@ import (
 	"github.com/galdor/go-cmdline"
 )
 
+var (
+	verbose bool
+	quiet   bool
+)
+
 type Client struct {
 	Config *Config
 }
@@ -24,6 +29,9 @@ func main() {
 	cl.Parse(os.Args)
 
 	// Config
+	verbose = cl.IsOptionSet("verbose")
+	quiet = cl.IsOptionSet("quiet")
+
 	config, err := LoadConfig()
 	if err != nil {
 		die("cannot load configuration: %v", err)
@@ -46,6 +54,22 @@ func main() {
 
 	// Main
 	cmd(cl.CommandNameAndArguments(), client)
+}
+
+func trace(format string, args ...interface{}) {
+	if verbose == false {
+		return
+	}
+
+	fmt.Fprintf(os.Stderr, format+"\n", args...)
+}
+
+func info(format string, args ...interface{}) {
+	if quiet == true {
+		return
+	}
+
+	fmt.Fprintf(os.Stderr, format+"\n", args...)
 }
 
 func die(format string, args ...interface{}) {
