@@ -19,6 +19,7 @@ func main() {
 	cl.AddFlag("q", "quiet", "do not print status and information messages")
 
 	cl.AddCommand("config", "interact with the evcli configuration")
+	cl.AddCommand("project", "manipulate projects")
 
 	cl.Parse(os.Args)
 
@@ -39,6 +40,8 @@ func main() {
 	switch cl.CommandName() {
 	case "config":
 		cmd = cmdConfig
+	case "project":
+		cmd = cmdProject
 	}
 
 	// Main
