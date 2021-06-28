@@ -65,10 +65,19 @@ func cmdProjectCreate(args []string, app *App) {
 
 func cmdProjectDelete(args []string, app *App) {
 	cl := cmdline.New()
+	cl.AddArgument("name", "the name of the project to delete")
 	cl.Parse(args)
 
-	// TODO
-	die("unimplemented")
+	name := cl.ArgumentValue("name")
+
+	project, err := app.Client.FetchProjectByName(name)
+	if err != nil {
+		die("cannot fetch project: %v", err)
+	}
+
+	if err := app.Client.DeleteProject(project.Id); err != nil {
+		die("cannot delete project: %v", err)
+	}
 }
 
 func cmdProjectDeploy(args []string, app *App) {

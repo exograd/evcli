@@ -77,11 +77,36 @@ func (c *Client) SendRequest(method string, relURI *url.URL, body, dest interfac
 			res.StatusCode, string(resBody))
 	}
 
-	if err := json.Unmarshal(resBody, dest); err != nil {
-		return fmt.Errorf("cannot decode response body: %w", err)
+	if dest != nil {
+		if len(resBody) == 0 {
+			return fmt.Errorf("empty response body")
+		}
+
+		if err := json.Unmarshal(resBody, dest); err != nil {
+			return fmt.Errorf("cannot decode response body: %w", err)
+		}
 	}
 
 	return err
+}
+
+func (c *Client) FetchProjectByName(name string) (*Project, error) {
+	uri := &url.URL{Path: "/v0/projects/name/" + url.QueryEscape(name)}
+
+	var project Project
+
+	err := c.SendRequest("GET", uri, nil, &project)
+	if err != nil {
+		return nil, err
+	}
+
+	return &project, nil
+}
+
+func (c *Client) DeleteProject(id string) error {
+	uri := &url.URL{Path: "/v0/projects/id/" + url.QueryEscape(id)}
+
+	return c.SendRequest("DELETE", uri, nil, nil)
 }
 
 type RoundTripper struct {
