@@ -2,11 +2,10 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"path"
-
-	"github.com/pkg/errors"
 )
 
 type Config struct {
@@ -30,7 +29,7 @@ func LoadConfig() (*Config, error) {
 	trace("loading configuration from %s", filePath)
 
 	if err := config.LoadFile(filePath); err != nil {
-		return nil, errors.Wrapf(err, "cannot load %q", filePath)
+		return nil, fmt.Errorf("cannot load %q: %w", filePath, err)
 	}
 
 	return config, nil
@@ -64,7 +63,7 @@ func DefaultConfig() *Config {
 func (c *Config) LoadFile(filePath string) error {
 	data, err := ioutil.ReadFile(filePath)
 	if err != nil {
-		return errors.Wrap(err, "cannot read file")
+		return fmt.Errorf("cannot read file: %w", err)
 	}
 
 	return c.LoadData(data)
@@ -72,7 +71,7 @@ func (c *Config) LoadFile(filePath string) error {
 
 func (c *Config) LoadData(data []byte) error {
 	if err := json.Unmarshal(data, c); err != nil {
-		return errors.Wrap(err, "cannot parse json data")
+		return fmt.Errorf("cannot parse json data: %w", err)
 	}
 
 	return nil

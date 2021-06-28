@@ -9,8 +9,6 @@ import (
 	"net/http"
 	"net/url"
 	"time"
-
-	"github.com/pkg/errors"
 )
 
 type Error struct {
@@ -37,7 +35,7 @@ func NewClient(config *Config) (*Client, error) {
 
 	baseURI, err := url.Parse(config.API.Endpoint)
 	if err != nil {
-		return nil, errors.Wrap(err, "invalid api endpoint")
+		return nil, fmt.Errorf("invalid api endpoint: %w", err)
 	}
 
 	client := &Client{
@@ -58,7 +56,7 @@ func (c *Client) SendRequest(method string, relURI *url.URL, body, dest interfac
 	} else {
 		bodyData, err := json.Marshal(body)
 		if err != nil {
-			return errors.Wrap(err, "cannot encode body")
+			return fmt.Errorf("cannot encode body: %w", err)
 		}
 
 		bodyReader = bytes.NewReader(bodyData)
@@ -66,18 +64,18 @@ func (c *Client) SendRequest(method string, relURI *url.URL, body, dest interfac
 
 	req, err := http.NewRequest(method, uri.String(), bodyReader)
 	if err != nil {
-		return errors.Wrap(err, "cannot create request")
+		return fmt.Errorf("cannot create request: %w", err)
 	}
 
 	res, err := c.httpClient.Do(req)
 	if err != nil {
-		return errors.Wrap(err, "cannot send request")
+		return fmt.Errorf("cannot send request: %w", err)
 	}
 
 	if res.StatusCode < 200 || res.StatusCode >= 300 {
 		resBody, err := ioutil.ReadAll(res.Body)
 		if err != nil {
-			return errors.Wrap(err, "cannot read response body")
+			return fmt.Errorf("cannot read response body: %w", err)
 		}
 
 		var apiErr Error
