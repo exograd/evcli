@@ -2,7 +2,6 @@ package main
 
 import (
 	"net/url"
-	"os"
 
 	"github.com/galdor/go-cmdline"
 )
@@ -53,7 +52,7 @@ func cmdProjectList(args []string, app *App) {
 		table.AddRow(row)
 	}
 
-	_ = table.Format(os.Stdout)
+	table.Write()
 }
 
 func cmdProjectCreate(args []string, app *App) {

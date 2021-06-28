@@ -1,9 +1,8 @@
 package main
 
 import (
-	"bytes"
 	"fmt"
-	"io"
+	"os"
 	"strings"
 )
 
@@ -23,35 +22,31 @@ func (t *Table) AddRow(row []interface{}) {
 	t.Rows = append(t.Rows, row)
 }
 
-func (t *Table) Format(w io.Writer) error {
-	var buf bytes.Buffer
-
+func (t *Table) Write() {
 	rows := t.Render()
 	widths := t.ColumnWidths(rows)
 
 	for i, label := range t.Header {
 		if i > 0 {
-			buf.WriteString("  ")
+			fmt.Fprintf(os.Stderr, "  ")
 		}
 
-		fmt.Fprintf(&buf, "%-*s", widths[i], strings.ToUpper(label))
+		fmt.Fprintf(os.Stderr, "%-*s", widths[i], strings.ToUpper(label))
 	}
-	buf.WriteByte('\n')
+
+	fmt.Fprintln(os.Stderr, "")
 
 	for _, row := range rows {
 		for j, s := range row {
 			if j > 0 {
-				buf.WriteString("  ")
+				fmt.Printf("  ")
 			}
 
-			fmt.Fprintf(&buf, "%-*s", widths[j], s)
+			fmt.Printf("%-*s", widths[j], s)
 		}
 
-		buf.WriteByte('\n')
+		fmt.Println("")
 	}
-
-	_, err := io.Copy(w, &buf)
-	return err
 }
 
 func (t *Table) Render() [][]string {
