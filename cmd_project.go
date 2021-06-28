@@ -4,7 +4,7 @@ import (
 	"github.com/galdor/go-cmdline"
 )
 
-func cmdProject(args []string, client *Client) {
+func cmdProject(args []string, app *App) {
 	cl := cmdline.New()
 	cl.AddCommand("list", "list projects")
 	cl.AddCommand("create", "create a project")
@@ -12,7 +12,7 @@ func cmdProject(args []string, client *Client) {
 	cl.AddCommand("deploy", "deploy a project")
 	cl.Parse(args)
 
-	var cmd func([]string, *Client)
+	var cmd func([]string, *App)
 
 	switch cl.CommandName() {
 	case "list":
@@ -25,10 +25,10 @@ func cmdProject(args []string, client *Client) {
 		cmd = cmdProjectDeploy
 	}
 
-	cmd(cl.CommandNameAndArguments(), client)
+	cmd(cl.CommandNameAndArguments(), app)
 }
 
-func cmdProjectList(args []string, client *Client) {
+func cmdProjectList(args []string, app *App) {
 	cl := cmdline.New()
 	cl.Parse(args)
 
@@ -36,7 +36,7 @@ func cmdProjectList(args []string, client *Client) {
 	die("unimplemented")
 }
 
-func cmdProjectCreate(args []string, client *Client) {
+func cmdProjectCreate(args []string, app *App) {
 	cl := cmdline.New()
 	cl.Parse(args)
 
@@ -44,7 +44,7 @@ func cmdProjectCreate(args []string, client *Client) {
 	die("unimplemented")
 }
 
-func cmdProjectDelete(args []string, client *Client) {
+func cmdProjectDelete(args []string, app *App) {
 	cl := cmdline.New()
 	cl.Parse(args)
 
@@ -52,7 +52,7 @@ func cmdProjectDelete(args []string, client *Client) {
 	die("unimplemented")
 }
 
-func cmdProjectDeploy(args []string, client *Client) {
+func cmdProjectDeploy(args []string, app *App) {
 	cl := cmdline.New()
 	cl.Parse(args)
 

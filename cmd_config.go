@@ -7,29 +7,29 @@ import (
 	"github.com/galdor/go-cmdline"
 )
 
-func cmdConfig(args []string, client *Client) {
+func cmdConfig(args []string, app *App) {
 	cl := cmdline.New()
 	cl.AddCommand("show", "print the configuration and exit")
 	cl.Parse(args)
 
-	var cmd func([]string, *Client)
+	var cmd func([]string, *App)
 
 	switch cl.CommandName() {
 	case "show":
 		cmd = cmdConfigShow
 	}
 
-	cmd(cl.CommandNameAndArguments(), client)
+	cmd(cl.CommandNameAndArguments(), app)
 }
 
-func cmdConfigShow(args []string, client *Client) {
+func cmdConfigShow(args []string, app *App) {
 	cl := cmdline.New()
 	cl.Parse(args)
 
 	encoder := json.NewEncoder(os.Stdout)
 	encoder.SetIndent("", "  ")
 
-	if err := encoder.Encode(client.Config); err != nil {
+	if err := encoder.Encode(app.Config); err != nil {
 		die("cannot encode configuration: %v", err)
 	}
 }

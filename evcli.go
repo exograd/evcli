@@ -12,8 +12,9 @@ var (
 	quiet   bool
 )
 
-type Client struct {
+type App struct {
 	Config *Config
+	Client *Client
 }
 
 func main() {
@@ -37,13 +38,14 @@ func main() {
 		die("cannot load configuration: %v", err)
 	}
 
-	// Client
-	client := &Client{
+	// Application
+	app := &App{
 		Config: config,
+		Client: NewClient(config),
 	}
 
 	// Commands
-	var cmd func([]string, *Client)
+	var cmd func([]string, *App)
 
 	switch cl.CommandName() {
 	case "config":
@@ -53,7 +55,7 @@ func main() {
 	}
 
 	// Main
-	cmd(cl.CommandNameAndArguments(), client)
+	cmd(cl.CommandNameAndArguments(), app)
 }
 
 func trace(format string, args ...interface{}) {
@@ -73,6 +75,6 @@ func info(format string, args ...interface{}) {
 }
 
 func die(format string, args ...interface{}) {
-	fmt.Fprintf(os.Stderr, format+"\n", args...)
+	fmt.Fprintf(os.Stderr, "error: "+format+"\n", args...)
 	os.Exit(1)
 }
