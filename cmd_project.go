@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/url"
 
 	"github.com/galdor/go-cmdline"
@@ -69,6 +70,13 @@ func cmdProjectDelete(args []string, app *App) {
 	cl.Parse(args)
 
 	name := cl.ArgumentValue("name")
+
+	prompt := fmt.Sprintf("Do you want to delete project %q ? All resources "+
+		"associated with it will be deleted as well.", name)
+	if Confirm(prompt) == false {
+		info("deletion aborted")
+		return
+	}
 
 	project, err := app.Client.FetchProjectByName(name)
 	if err != nil {
