@@ -56,7 +56,7 @@ func DefaultConfig() *Config {
 		},
 
 		API: APIConfig{
-			Endpoint: "https://api.eventline.com",
+			Endpoint: "https://api.eventline.net",
 		},
 	}
 }
