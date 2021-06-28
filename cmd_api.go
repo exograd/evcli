@@ -6,9 +6,6 @@ import (
 	"github.com/galdor/go-cmdline"
 )
 
-type APIStatus struct {
-}
-
 func cmdAPI(args []string, app *App) {
 	cl := cmdline.New()
 	cl.AddCommand("status", "print the current status of the api")
