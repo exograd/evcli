@@ -90,6 +90,21 @@ func (c *Client) SendRequest(method string, relURI *url.URL, body, dest interfac
 	return err
 }
 
+func (c *Client) FetchProjects() ([]*Project, error) {
+	var page ProjectPage
+
+	query := url.Values{}
+	query.Add("size", "100")
+	uri := &url.URL{Path: "/v0/projects", RawQuery: query.Encode()}
+
+	err := c.SendRequest("GET", uri, nil, &page)
+	if err != nil {
+		return nil, err
+	}
+
+	return page.Elements, nil
+}
+
 func (c *Client) FetchProjectByName(name string) (*Project, error) {
 	uri := &url.URL{Path: "/v0/projects/name/" + url.QueryEscape(name)}
 
