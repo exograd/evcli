@@ -1,7 +1,9 @@
 package main
 
 import (
+	"errors"
 	"fmt"
+	"os"
 
 	"github.com/galdor/go-cmdline"
 )
@@ -51,15 +53,52 @@ func cmdProjectList(args []string, app *App) {
 
 func cmdProjectCreate(args []string, app *App) {
 	cl := cmdline.New()
+	cl.AddArgument("name", "the name of the project")
+	cl.AddArgument("path", "the directory which will contain project data")
+	cl.AddOption("d", "description", "description",
+		"a description of the project")
 	cl.Parse(args)
 
-	// TODO
-	die("unimplemented")
+	name := cl.ArgumentValue("name")
+	path := cl.ArgumentValue("path")
+
+	projectFile, err := LoadProjectFile(path)
+	if err != nil {
+		if errors.Is(err, os.ErrNotExist) {
+			trace("creating project file at %s", path)
+
+			projectFile = &ProjectFile{
+				Name: name,
+			}
+
+			if err := projectFile.WriteFile(path); err != nil {
+				die("cannot create project file at %s: %v", path, err)
+			}
+		} else {
+			die("cannot load project file from %s: %v", path, err)
+		}
+	}
+
+	if projectFile.Name != name {
+		die("directory %s already contains project %s",
+			path, projectFile.Name)
+	}
+
+	project := &Project{
+		Name:        name,
+		Description: cl.OptionValue("description"),
+	}
+
+	if err := app.Client.CreateProject(project); err != nil {
+		die("cannot create project: %v", err)
+	}
+
+	info("project %s created", project.Id)
 }
 
 func cmdProjectDelete(args []string, app *App) {
 	cl := cmdline.New()
-	cl.AddArgument("name", "the name of the project to delete")
+	cl.AddArgument("name", "the name of the project")
 	cl.Parse(args)
 
 	name := cl.ArgumentValue("name")

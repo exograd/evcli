@@ -105,6 +105,18 @@ func (c *Client) FetchProjects() ([]*Project, error) {
 	return page.Elements, nil
 }
 
+func (c *Client) CreateProject(project *Project) error {
+	uri := &url.URL{Path: "/v0/projects"}
+
+	return c.SendRequest("POST", uri, project, project)
+}
+
+func (c *Client) DeleteProject(id string) error {
+	uri := &url.URL{Path: "/v0/projects/id/" + url.QueryEscape(id)}
+
+	return c.SendRequest("DELETE", uri, nil, nil)
+}
+
 func (c *Client) FetchProjectByName(name string) (*Project, error) {
 	uri := &url.URL{Path: "/v0/projects/name/" + url.QueryEscape(name)}
 
@@ -116,12 +128,6 @@ func (c *Client) FetchProjectByName(name string) (*Project, error) {
 	}
 
 	return &project, nil
-}
-
-func (c *Client) DeleteProject(id string) error {
-	uri := &url.URL{Path: "/v0/projects/id/" + url.QueryEscape(id)}
-
-	return c.SendRequest("DELETE", uri, nil, nil)
 }
 
 type RoundTripper struct {
