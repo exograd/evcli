@@ -62,12 +62,12 @@ func (c *Client) SendRequest(method string, relURI *url.URL, body, dest interfac
 		return fmt.Errorf("cannot send request: %w", err)
 	}
 
-	if res.StatusCode < 200 || res.StatusCode >= 300 {
-		resBody, err := ioutil.ReadAll(res.Body)
-		if err != nil {
-			return fmt.Errorf("cannot read response body: %w", err)
-		}
+	resBody, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return fmt.Errorf("cannot read response body: %w", err)
+	}
 
+	if res.StatusCode < 200 || res.StatusCode >= 300 {
 		var apiErr Error
 		if err := json.Unmarshal(resBody, &apiErr); err == nil {
 			return &apiErr
@@ -75,6 +75,10 @@ func (c *Client) SendRequest(method string, relURI *url.URL, body, dest interfac
 
 		return fmt.Errorf("request failed with status %d: %s",
 			res.StatusCode, string(resBody))
+	}
+
+	if err := json.Unmarshal(resBody, dest); err != nil {
+		return fmt.Errorf("cannot decode response body: %w", err)
 	}
 
 	return err

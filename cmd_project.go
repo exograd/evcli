@@ -1,6 +1,9 @@
 package main
 
 import (
+	"net/url"
+	"os"
+
 	"github.com/galdor/go-cmdline"
 )
 
@@ -32,8 +35,25 @@ func cmdProjectList(args []string, app *App) {
 	cl := cmdline.New()
 	cl.Parse(args)
 
-	// TODO
-	die("unimplemented")
+	var page ProjectPage
+
+	query := url.Values{}
+	query.Add("size", "100")
+	uri := &url.URL{Path: "/v0/projects", RawQuery: query.Encode()}
+
+	err := app.Client.SendRequest("GET", uri, nil, &page)
+	if err != nil {
+		die("cannot fetch projects: %v", err)
+	}
+
+	header := []string{"id", "name", "description"}
+	table := NewTable(header)
+	for _, project := range page.Elements {
+		row := []interface{}{project.Id, project.Name, project.Description}
+		table.AddRow(row)
+	}
+
+	_ = table.Format(os.Stdout)
 }
 
 func cmdProjectCreate(args []string, app *App) {

@@ -28,6 +28,7 @@ func cmdAPIStatus(args []string, app *App) {
 	var status APIStatus
 
 	uri := &url.URL{Path: "/v0/status"}
+
 	err := app.Client.SendRequest("GET", uri, nil, &status)
 	if err != nil {
 		die("cannot fetch api status: %v", err)
