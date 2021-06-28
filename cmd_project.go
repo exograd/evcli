@@ -62,20 +62,16 @@ func cmdProjectCreate(args []string, app *App) {
 	name := cl.ArgumentValue("name")
 	path := cl.ArgumentValue("path")
 
-	projectFile, err := LoadProjectFile(path)
-	if err != nil {
+	var projectFile ProjectFile
+	if err := projectFile.Read(path); err != nil {
 		if errors.Is(err, os.ErrNotExist) {
-			trace("creating project file at %s", path)
+			projectFile.Name = name
 
-			projectFile = &ProjectFile{
-				Name: name,
-			}
-
-			if err := projectFile.WriteFile(path); err != nil {
-				die("cannot create project file at %s: %v", path, err)
+			if err := projectFile.Write(path); err != nil {
+				die("cannot write project file in %s: %v", path, err)
 			}
 		} else {
-			die("cannot load project file from %s: %v", path, err)
+			die("cannot read project file in %s: %v", path, err)
 		}
 	}
 
