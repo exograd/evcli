@@ -10,16 +10,16 @@ import (
 )
 
 type Config struct {
-	Interface InterfaceConfig `json:"interface"`
-	API       APIConfig       `json:"api"`
+	Interface InterfaceConfig `json:"interface,omitempty"`
+	API       APIConfig       `json:"api,omitempty"`
 }
 
 type InterfaceConfig struct {
-	Color bool `json:"color"`
+	Color bool `json:"color,omitempty"`
 }
 
 type APIConfig struct {
-	Endpoint string `json:"endpoint"`
+	Endpoint string `json:"endpoint,omitempty"`
 }
 
 func LoadConfig() (*Config, error) {

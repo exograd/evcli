@@ -24,6 +24,7 @@ func main() {
 	cl.AddFlag("v", "verbose", "print debug messages")
 	cl.AddFlag("q", "quiet", "do not print status and information messages")
 
+	cl.AddCommand("api", "interact with the eventline api")
 	cl.AddCommand("config", "interact with the evcli configuration")
 	cl.AddCommand("project", "manipulate projects")
 
@@ -39,15 +40,22 @@ func main() {
 	}
 
 	// Application
+	client, err := NewClient(config)
+	if err != nil {
+		die("cannot create api client: %v", err)
+	}
+
 	app := &App{
 		Config: config,
-		Client: NewClient(config),
+		Client: client,
 	}
 
 	// Commands
 	var cmd func([]string, *App)
 
 	switch cl.CommandName() {
+	case "api":
+		cmd = cmdAPI
 	case "config":
 		cmd = cmdConfig
 	case "project":
