@@ -107,7 +107,7 @@ func FindFiles(dirPath string, extensions []string) ([]string, error) {
 				}
 			}
 
-			if match == false {
+			if !match {
 				return nil
 			}
 

@@ -74,7 +74,7 @@ func main() {
 }
 
 func trace(format string, args ...interface{}) {
-	if verbose == false {
+	if !verbose {
 		return
 	}
 
@@ -82,7 +82,7 @@ func trace(format string, args ...interface{}) {
 }
 
 func info(format string, args ...interface{}) {
-	if quiet == true {
+	if !quiet {
 		return
 	}
 

@@ -46,7 +46,7 @@ func Confirm(prompt string) bool {
 }
 
 func Colorize(color Color, text string) string {
-	if colorOutput == false {
+	if !colorOutput {
 		return text
 	}
 
