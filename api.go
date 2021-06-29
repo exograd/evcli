@@ -1,13 +1,51 @@
 package main
 
-type Error struct {
-	ErrorString string      `json:"error"`
-	Code        string      `json:"code"`
-	Data        interface{} `json:"data,omitempty"`
+import (
+	"encoding/json"
+	"fmt"
+)
+
+type APIError struct {
+	ErrorString string          `json:"error"`
+	Code        string          `json:"code"`
+	RawData     json.RawMessage `json:"data,omitempty"`
+	Data        interface{}     `json:"-"`
 }
 
-func (err Error) Error() string {
+type InvalidRequestBodyError struct {
+	JSVErrors []JSVError `json:"jsv_errors"`
+}
+
+type JSVError struct {
+	Pointer string `json:"pointer"`
+	Reason  string `json:"reason"`
+}
+
+func (err APIError) Error() string {
 	return err.ErrorString
+}
+
+func (err *APIError) UnmarshalJSON(data []byte) error {
+	type APIError2 APIError
+
+	err2 := APIError2(*err)
+	if err := json.Unmarshal(data, &err2); err != nil {
+		return err
+	}
+
+	switch err2.Code {
+	case "invalid_request_body":
+		var errData InvalidRequestBodyError
+
+		if err := json.Unmarshal(err2.RawData, &errData); err != nil {
+			return fmt.Errorf("invalid jsv errors: %w", err)
+		}
+
+		err2.Data = errData
+	}
+
+	*err = APIError(err2)
+	return nil
 }
 
 type APIStatus struct {

@@ -31,7 +31,7 @@ func (rs *ResourceSet) Load(dirPath string) error {
 	}
 
 	for _, filePath := range filePaths {
-		trace("loading %s", filePath)
+		trace("loading resource file %s", filePath)
 
 		fileResources, err := LoadResourceFile(filePath)
 		if err != nil {

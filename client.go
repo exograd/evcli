@@ -68,10 +68,14 @@ func (c *Client) SendRequest(method string, relURI *url.URL, body, dest interfac
 	}
 
 	if res.StatusCode < 200 || res.StatusCode >= 300 {
-		var apiErr Error
-		if err := json.Unmarshal(resBody, &apiErr); err == nil {
+		var apiErr APIError
+
+		err := json.Unmarshal(resBody, &apiErr)
+		if err == nil {
 			return &apiErr
 		}
+
+		trace("cannot decode response body: %v", err)
 
 		return fmt.Errorf("request failed with status %d: %s",
 			res.StatusCode, string(resBody))

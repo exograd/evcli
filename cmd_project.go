@@ -1,11 +1,14 @@
 package main
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"os"
+	"strconv"
 
 	"github.com/galdor/go-cmdline"
+	"github.com/qri-io/jsonpointer"
 )
 
 func cmdProject(args []string, app *App) {
@@ -147,6 +150,57 @@ func cmdProjectDeploy(args []string, app *App) {
 	}
 
 	if err := app.Client.DeployProject(project.Id, &resourceSet); err != nil {
+		var apiErr *APIError
+		if errors.As(err, &apiErr) && apiErr.Code == "invalid_request_body" {
+			invalidRequestBodyErr := apiErr.Data.(InvalidRequestBodyError)
+			die("invalid resources:\n%s",
+				FormatInvalidRequestBodyError(invalidRequestBodyErr,
+					&resourceSet))
+		}
+
 		die("cannot deploy project: %v", err)
 	}
+}
+
+func FormatInvalidRequestBodyError(err InvalidRequestBodyError, resourceSet *ResourceSet) string {
+	var buf bytes.Buffer
+
+	for i, jsvError := range err.JSVErrors {
+		if i > 0 {
+			buf.WriteByte('\n')
+		}
+
+		ptr, err := jsonpointer.Parse(jsvError.Pointer)
+		if err != nil {
+			die("invalid json pointer %q in error response: %v", ptr, err)
+		}
+
+		if len(ptr) < 2 || ptr[0] != "specs" {
+			die("invalid json pointer %q in error response", ptr)
+		}
+
+		document, err := strconv.Atoi(ptr[1])
+		if err != nil {
+			die("invalid document index %q in json pointer %q", ptr[1], ptr)
+		}
+
+		if document < 0 || document >= len(resourceSet.Resources) {
+			die("invalid document index %d in json pointer %q", document, ptr)
+		}
+
+		resource := resourceSet.Resources[document]
+		resourcePtr := ptr[2:]
+
+		var message string
+		if len(resourcePtr) == 0 {
+			message = jsvError.Reason
+		} else {
+			message = resourcePtr.String() + ": " + jsvError.Reason
+		}
+
+		fmt.Fprintf(&buf, "%s: invalid document %d: %s",
+			resource.Path, document, message)
+	}
+
+	return buf.String()
 }
