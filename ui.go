@@ -21,6 +21,10 @@ var (
 )
 
 func Confirm(prompt string) bool {
+	if skipConfirmations {
+		return true
+	}
+
 	fmt.Printf("%s\n[yn] ", prompt)
 
 	r := bufio.NewReader(os.Stdin)

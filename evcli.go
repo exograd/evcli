@@ -8,8 +8,9 @@ import (
 )
 
 var (
-	verbose bool
-	quiet   bool
+	verbose           bool
+	quiet             bool
+	skipConfirmations bool
 
 	colorOutput bool
 )
@@ -25,6 +26,7 @@ func main() {
 
 	cl.AddFlag("v", "verbose", "print debug messages")
 	cl.AddFlag("q", "quiet", "do not print status and information messages")
+	cl.AddFlag("y", "yes", "skip all confirmations")
 
 	cl.AddCommand("api", "interact with the eventline api")
 	cl.AddCommand("config", "interact with the evcli configuration")
@@ -35,6 +37,7 @@ func main() {
 	// Config
 	verbose = cl.IsOptionSet("verbose")
 	quiet = cl.IsOptionSet("quiet")
+	skipConfirmations = cl.IsOptionSet("yes")
 
 	config, err := LoadConfig()
 	if err != nil {
