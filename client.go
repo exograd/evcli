@@ -95,9 +95,9 @@ func (c *Client) FetchProjects() ([]*Project, error) {
 
 	query := url.Values{}
 	query.Add("size", "100")
-	uri := &url.URL{Path: "/v0/projects", RawQuery: query.Encode()}
+	uri := url.URL{Path: "/v0/projects", RawQuery: query.Encode()}
 
-	err := c.SendRequest("GET", uri, nil, &page)
+	err := c.SendRequest("GET", &uri, nil, &page)
 	if err != nil {
 		return nil, err
 	}
@@ -105,29 +105,37 @@ func (c *Client) FetchProjects() ([]*Project, error) {
 	return page.Elements, nil
 }
 
-func (c *Client) CreateProject(project *Project) error {
-	uri := &url.URL{Path: "/v0/projects"}
-
-	return c.SendRequest("POST", uri, project, project)
-}
-
-func (c *Client) DeleteProject(id string) error {
-	uri := &url.URL{Path: "/v0/projects/id/" + url.QueryEscape(id)}
-
-	return c.SendRequest("DELETE", uri, nil, nil)
-}
-
 func (c *Client) FetchProjectByName(name string) (*Project, error) {
-	uri := &url.URL{Path: "/v0/projects/name/" + url.QueryEscape(name)}
+	uri := url.URL{Path: "/v0/projects/name/" + url.QueryEscape(name)}
 
 	var project Project
 
-	err := c.SendRequest("GET", uri, nil, &project)
+	err := c.SendRequest("GET", &uri, nil, &project)
 	if err != nil {
 		return nil, err
 	}
 
 	return &project, nil
+}
+
+func (c *Client) CreateProject(project *Project) error {
+	uri := url.URL{Path: "/v0/projects"}
+
+	return c.SendRequest("POST", &uri, project, project)
+}
+
+func (c *Client) DeleteProject(id string) error {
+	uri := url.URL{Path: "/v0/projects/id/" + url.QueryEscape(id)}
+
+	return c.SendRequest("DELETE", &uri, nil, nil)
+}
+
+func (c *Client) DeployProject(id string, rs *ResourceSet) error {
+	uri := url.URL{
+		Path: "/v0/projects/id/" + url.QueryEscape(id) + "/resources",
+	}
+
+	return c.SendRequest("PUT", &uri, rs, nil)
 }
 
 type RoundTripper struct {

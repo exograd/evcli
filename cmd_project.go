@@ -60,24 +60,24 @@ func cmdProjectCreate(args []string, app *App) {
 	cl.Parse(args)
 
 	name := cl.ArgumentValue("name")
-	path := cl.ArgumentValue("path")
+	dirPath := cl.OptionValue("path")
 
 	var projectFile ProjectFile
-	if err := projectFile.Read(path); err != nil {
+	if err := projectFile.Read(dirPath); err != nil {
 		if errors.Is(err, os.ErrNotExist) {
 			projectFile.Name = name
 
-			if err := projectFile.Write(path); err != nil {
-				die("cannot write project file in %s: %v", path, err)
+			if err := projectFile.Write(dirPath); err != nil {
+				die("cannot write project file in %s: %v", dirPath, err)
 			}
 		} else {
-			die("cannot read project file in %s: %v", path, err)
+			die("cannot read project file in %s: %v", dirPath, err)
 		}
 	}
 
 	if projectFile.Name != name {
 		die("directory %s already contains project %s",
-			path, projectFile.Name)
+			dirPath, projectFile.Name)
 	}
 
 	project := &Project{
@@ -118,8 +118,35 @@ func cmdProjectDelete(args []string, app *App) {
 
 func cmdProjectDeploy(args []string, app *App) {
 	cl := cmdline.New()
+	cl.AddArgument("name", "the name of the project")
+	cl.AddOption("d", "directory", "path",
+		"the directory containing project data")
+	cl.SetOptionDefault("directory", ".")
 	cl.Parse(args)
 
-	// TODO
-	die("unimplemented")
+	name := cl.ArgumentValue("name")
+	dirPath := cl.OptionValue("directory")
+
+	var projectFile ProjectFile
+	if err := projectFile.Read(dirPath); err != nil {
+		die("cannot read project file in %s: %v", dirPath, err)
+	}
+
+	if projectFile.Name != name {
+		die("directory %s contains project %s", dirPath, projectFile.Name)
+	}
+
+	var resourceSet ResourceSet
+	if err := resourceSet.Load(dirPath); err != nil {
+		die("cannot load resources from %s: %v", dirPath, err)
+	}
+
+	project, err := app.Client.FetchProjectByName(name)
+	if err != nil {
+		die("cannot fetch project: %v", err)
+	}
+
+	if err := app.Client.DeployProject(project.Id, &resourceSet); err != nil {
+		die("cannot deploy project: %v", err)
+	}
 }
