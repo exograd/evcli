@@ -141,7 +141,7 @@ func cmdProjectDeploy(args []string, app *App) {
 
 	var resourceSet ResourceSet
 	if err := resourceSet.Load(dirPath); err != nil {
-		die("cannot load resources from %s: %v", dirPath, err)
+		die("cannot load resources: %v", err)
 	}
 
 	project, err := app.Client.FetchProjectByName(name)

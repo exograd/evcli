@@ -6,9 +6,11 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
+	"path"
 	"path/filepath"
 	"strings"
 
+	"github.com/qri-io/jsonpointer"
 	"gopkg.in/yaml.v3"
 )
 
@@ -44,6 +46,14 @@ func (rs *ResourceSet) Load(dirPath string) error {
 			if err != nil {
 				return fmt.Errorf("%s: document %d is not a valid json "+
 					"value: %w", filePath, fileResource.Document, err)
+			}
+
+			if SpecType(jsonSpec) == "task" {
+				if err := LoadTaskSource(jsonSpec, dirPath); err != nil {
+					return fmt.Errorf("%s: cannot load task source for "+
+						"document %d: %w",
+						fileResource.Path, fileResource.Document, err)
+				}
 			}
 
 			rs.Resources = append(rs.Resources, fileResource)
@@ -119,4 +129,79 @@ func FindFiles(dirPath string, extensions []string) ([]string, error) {
 	}
 
 	return filePaths, nil
+}
+
+func SpecType(spec interface{}) string {
+	ptr, _ := jsonpointer.Parse("/type")
+
+	value, err := ptr.Eval(spec)
+	if err != nil {
+		return ""
+	}
+
+	s, ok := value.(string)
+	if !ok {
+		return ""
+	}
+
+	return s
+}
+
+func LoadTaskSource(spec interface{}, dirPath string) error {
+	ptr, _ := jsonpointer.Parse("/data/steps")
+
+	values, err := ptr.Eval(spec)
+	if err != nil {
+		return nil
+	}
+
+	steps, ok := values.([]interface{})
+	if !ok {
+		return nil
+	}
+
+	for _, step := range steps {
+		if err := LoadStepSource(step, dirPath); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func LoadStepSource(step interface{}, dirPath string) error {
+	ptr, _ := jsonpointer.Parse("/run")
+
+	runValue, err := ptr.Eval(step)
+	if err != nil {
+		return nil
+	}
+
+	run, ok := runValue.(map[string]interface{})
+	if !ok {
+		return nil
+	}
+
+	sourceValue, found := run["source"]
+	if !found {
+		return nil
+	}
+
+	source, ok := sourceValue.(string)
+	if !ok {
+		return fmt.Errorf("%v is not a string", sourceValue)
+	}
+
+	sourcePath := path.Join(dirPath, source)
+
+	trace("loading task step source file %s", sourcePath)
+
+	data, err := ioutil.ReadFile(sourcePath)
+	if err != nil {
+		return fmt.Errorf("cannot read file %s: %w", sourcePath, err)
+	}
+
+	run["code"] = string(data)
+
+	return nil
 }
