@@ -63,7 +63,7 @@ func cmdProjectCreate(args []string, app *App) {
 	cl.Parse(args)
 
 	name := cl.ArgumentValue("name")
-	dirPath := cl.OptionValue("path")
+	dirPath := cl.ArgumentValue("path")
 
 	var projectFile ProjectFile
 	if err := projectFile.Read(dirPath); err != nil {
