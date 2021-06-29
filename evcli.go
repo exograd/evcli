@@ -87,6 +87,7 @@ func info(format string, args ...interface{}) {
 }
 
 func die(format string, args ...interface{}) {
-	fmt.Fprintf(os.Stderr, "error: "+format+"\n", args...)
+	msg := fmt.Sprintf("error: "+format, args...)
+	fmt.Fprintf(os.Stderr, "%s\n", Colorize(ColorRed, msg))
 	os.Exit(1)
 }
