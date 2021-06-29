@@ -31,7 +31,8 @@ func (t *Table) Write() {
 			fmt.Fprintf(os.Stderr, "  ")
 		}
 
-		fmt.Fprintf(os.Stderr, "%-*s", widths[i], strings.ToUpper(label))
+		label = fmt.Sprintf("%-*s", widths[i], strings.ToUpper(label))
+		fmt.Fprintf(os.Stderr, Colorize(ColorYellow, label))
 	}
 
 	fmt.Fprintln(os.Stderr, "")

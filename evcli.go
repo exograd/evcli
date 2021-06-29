@@ -10,6 +10,8 @@ import (
 var (
 	verbose bool
 	quiet   bool
+
+	colorOutput bool
 )
 
 type App struct {
@@ -38,6 +40,8 @@ func main() {
 	if err != nil {
 		die("cannot load configuration: %v", err)
 	}
+
+	colorOutput = config.Interface.Color
 
 	// Application
 	client, err := NewClient(config)

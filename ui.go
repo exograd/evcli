@@ -7,6 +7,19 @@ import (
 	"strings"
 )
 
+type Color int
+
+var (
+	ColorBlack   = Color(0)
+	ColorRed     = Color(1)
+	ColorGreen   = Color(2)
+	ColorYellow  = Color(3)
+	ColorBlue    = Color(4)
+	ColorMagenta = Color(5)
+	ColorCyan    = Color(6)
+	ColorWhite   = Color(7)
+)
+
 func Confirm(prompt string) bool {
 	fmt.Printf("%s\n[yn] ", prompt)
 
@@ -26,4 +39,12 @@ func Confirm(prompt string) bool {
 	}
 
 	return false
+}
+
+func Colorize(color Color, text string) string {
+	if colorOutput == false {
+		return text
+	}
+
+	return fmt.Sprintf("\033[%dm%s\033[0m", 30+int(color), text)
 }
