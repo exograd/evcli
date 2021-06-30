@@ -70,7 +70,11 @@ func (t *Table) RenderValue(value interface{}) string {
 	case time.Time:
 		return v.Format(time.RFC3339)
 	case *time.Time:
-		return v.Format(time.RFC3339)
+		if v == nil {
+			return ""
+		} else {
+			return v.Format(time.RFC3339)
+		}
 	}
 
 	return fmt.Sprintf("%v", value)
