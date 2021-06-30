@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"time"
 )
 
 type APIError struct {
@@ -68,4 +69,25 @@ type Project struct {
 	Id          string `json:"id,omitempty"`
 	Name        string `json:"name"`
 	Description string `json:"description,omitempty"`
+}
+
+type PipelinePage struct {
+	Elements []*Pipeline `json:"elements"`
+	Previous *Cursor     `json:"previous,omitempty"`
+	Next     *Cursor     `json:"next,omitempty"`
+}
+
+type Pipeline struct {
+	Id           string     `json:"id,omitempty"`
+	Name         string     `json:"name"`
+	OrgId        string     `json:"org_id"`
+	ProjectId    string     `json:"project_id,omitempty"`
+	CreationTime time.Time  `json:"creation_time"`
+	PipelineId   string     `json:"pipeline_id,omitempty"`
+	TriggerId    string     `json:"trigger_id,omitempty"`
+	EventId      string     `json:"event_id,omitempty"`
+	Concurrent   bool       `json:"concurrent,omitempty"`
+	Status       string     `json:"status"`
+	StartTime    *time.Time `json:"start_time,omitempty"`
+	EndTime      *time.Time `json:"end_time,omitempty"`
 }

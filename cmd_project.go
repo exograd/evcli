@@ -46,8 +46,8 @@ func cmdProjectList(args []string, app *App) {
 
 	header := []string{"id", "name", "description"}
 	table := NewTable(header)
-	for _, project := range projects {
-		row := []interface{}{project.Id, project.Name, project.Description}
+	for _, p := range projects {
+		row := []interface{}{p.Id, p.Name, p.Description}
 		table.AddRow(row)
 	}
 

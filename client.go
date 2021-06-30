@@ -142,6 +142,22 @@ func (c *Client) DeployProject(id string, rs *ResourceSet) error {
 	return c.SendRequest("PUT", &uri, rs, nil)
 }
 
+func (c *Client) FetchPipelines() ([]*Pipeline, error) {
+	var page PipelinePage
+
+	query := url.Values{}
+	query.Add("size", "20")
+	query.Add("reverse", "")
+	uri := url.URL{Path: "/v0/pipelines", RawQuery: query.Encode()}
+
+	err := c.SendRequest("GET", &uri, nil, &page)
+	if err != nil {
+		return nil, err
+	}
+
+	return page.Elements, nil
+}
+
 type RoundTripper struct {
 	http.RoundTripper
 }
