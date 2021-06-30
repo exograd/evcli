@@ -158,6 +158,22 @@ func (c *Client) FetchPipelines() ([]*Pipeline, error) {
 	return page.Elements, nil
 }
 
+func (c *Client) FetchTasks() ([]*Task, error) {
+	var page TaskPage
+
+	query := url.Values{}
+	query.Add("size", "20")
+	query.Add("reverse", "")
+	uri := url.URL{Path: "/v0/tasks", RawQuery: query.Encode()}
+
+	err := c.SendRequest("GET", &uri, nil, &page)
+	if err != nil {
+		return nil, err
+	}
+
+	return page.Elements, nil
+}
+
 type RoundTripper struct {
 	http.RoundTripper
 }

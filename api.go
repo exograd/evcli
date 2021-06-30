@@ -91,3 +91,22 @@ type Pipeline struct {
 	StartTime    *time.Time `json:"start_time,omitempty"`
 	EndTime      *time.Time `json:"end_time,omitempty"`
 }
+
+type TaskPage struct {
+	Elements []*Task `json:"elements"`
+	Previous *Cursor `json:"previous,omitempty"`
+	Next     *Cursor `json:"next,omitempty"`
+}
+
+type Task struct {
+	Id             string     `json:"id,omitempty"`
+	OrgId          string     `json:"org_id"`
+	ProjectId      string     `json:"project_id,omitempty"`
+	PipelineId     string     `json:"pipeline_id,omitempty"`
+	TaskId         string     `json:"task_id,omitempty"`
+	InstanceId     int        `json:"instance_id,omitempty"`
+	Status         string     `json:"status"`
+	StartTime      *time.Time `json:"start_time,omitempty"`
+	EndTime        *time.Time `json:"end_time,omitempty"`
+	FailureMessage string     `json:"failure_message,omitempty"`
+}

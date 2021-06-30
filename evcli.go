@@ -32,6 +32,7 @@ func main() {
 	cl.AddCommand("config", "interact with the evcli configuration")
 	cl.AddCommand("project", "manipulate projects")
 	cl.AddCommand("pipeline", "manipulate pipelines")
+	cl.AddCommand("task", "manipulate tasks")
 
 	cl.Parse(os.Args)
 
@@ -70,6 +71,8 @@ func main() {
 		cmd = cmdProject
 	case "pipeline":
 		cmd = cmdPipeline
+	case "task":
+		cmd = cmdTask
 	}
 
 	// Main
