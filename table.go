@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
 )
 
 type Table struct {
@@ -65,6 +66,13 @@ func (t *Table) Render() [][]string {
 }
 
 func (t *Table) RenderValue(value interface{}) string {
+	switch v := value.(type) {
+	case time.Time:
+		return v.Format(time.RFC3339)
+	case *time.Time:
+		return v.Format(time.RFC3339)
+	}
+
 	return fmt.Sprintf("%v", value)
 }
 
