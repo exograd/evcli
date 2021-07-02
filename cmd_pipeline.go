@@ -7,6 +7,7 @@ import (
 func cmdPipeline(args []string, app *App) {
 	cl := cmdline.New()
 	cl.AddCommand("list", "list pipelines")
+	cl.AddCommand("abort", "abort a running pipeline")
 	cl.Parse(args)
 
 	var cmd func([]string, *App)
@@ -14,6 +15,8 @@ func cmdPipeline(args []string, app *App) {
 	switch cl.CommandName() {
 	case "list":
 		cmd = cmdPipelineList
+	case "abort":
+		cmd = cmdPipelineAbort
 	}
 
 	cmd(cl.CommandNameAndArguments(), app)
@@ -38,4 +41,16 @@ func cmdPipelineList(args []string, app *App) {
 	}
 
 	table.Write()
+}
+
+func cmdPipelineAbort(args []string, app *App) {
+	cl := cmdline.New()
+	cl.AddArgument("pipeline-id", "the pipeline to abort")
+	cl.Parse(args)
+
+	Id := cl.ArgumentValue("pipeline-id")
+
+	if err := app.Client.AbortPipeline(Id); err != nil {
+		die("cannot abort pipeline: %v", err)
+	}
 }
