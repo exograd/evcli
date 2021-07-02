@@ -110,7 +110,7 @@ func (c *Client) FetchProjects() ([]*Project, error) {
 }
 
 func (c *Client) FetchProjectByName(name string) (*Project, error) {
-	uri := url.URL{Path: "/v0/projects/name/" + url.QueryEscape(name)}
+	uri := url.URL{Path: "/v0/projects/name/" + url.PathEscape(name)}
 
 	var project Project
 
@@ -129,14 +129,14 @@ func (c *Client) CreateProject(project *Project) error {
 }
 
 func (c *Client) DeleteProject(id string) error {
-	uri := url.URL{Path: "/v0/projects/id/" + url.QueryEscape(id)}
+	uri := url.URL{Path: "/v0/projects/id/" + url.PathEscape(id)}
 
 	return c.SendRequest("DELETE", &uri, nil, nil)
 }
 
 func (c *Client) DeployProject(id string, rs *ResourceSet) error {
 	uri := url.URL{
-		Path: "/v0/projects/id/" + url.QueryEscape(id) + "/resources",
+		Path: "/v0/projects/id/" + url.PathEscape(id) + "/resources",
 	}
 
 	return c.SendRequest("PUT", &uri, rs, nil)
