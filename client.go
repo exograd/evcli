@@ -164,6 +164,12 @@ func (c *Client) AbortPipeline(Id string) error {
 	return c.SendRequest("POST", &uri, nil, nil)
 }
 
+func (c *Client) RestartPipeline(Id string) error {
+	uri := url.URL{Path: "/v0/pipelines/id/" + url.PathEscape(Id) + "/restart"}
+
+	return c.SendRequest("POST", &uri, nil, nil)
+}
+
 func (c *Client) FetchTasks() ([]*Task, error) {
 	var page TaskPage
 

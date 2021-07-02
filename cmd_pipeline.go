@@ -8,6 +8,7 @@ func cmdPipeline(args []string, app *App) {
 	cl := cmdline.New()
 	cl.AddCommand("list", "list pipelines")
 	cl.AddCommand("abort", "abort a running pipeline")
+	cl.AddCommand("restart", "restart a finished pipeline")
 	cl.Parse(args)
 
 	var cmd func([]string, *App)
@@ -17,6 +18,8 @@ func cmdPipeline(args []string, app *App) {
 		cmd = cmdPipelineList
 	case "abort":
 		cmd = cmdPipelineAbort
+	case "restart":
+		cmd = cmdPipelineRestart
 	}
 
 	cmd(cl.CommandNameAndArguments(), app)
@@ -52,5 +55,17 @@ func cmdPipelineAbort(args []string, app *App) {
 
 	if err := app.Client.AbortPipeline(Id); err != nil {
 		die("cannot abort pipeline: %v", err)
+	}
+}
+
+func cmdPipelineRestart(args []string, app *App) {
+	cl := cmdline.New()
+	cl.AddArgument("pipeline-id", "the pipeline to restart")
+	cl.Parse(args)
+
+	Id := cl.ArgumentValue("pipeline-id")
+
+	if err := app.Client.RestartPipeline(Id); err != nil {
+		die("cannot restart pipeline: %v", err)
 	}
 }
