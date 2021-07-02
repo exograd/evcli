@@ -56,6 +56,8 @@ func cmdPipelineAbort(args []string, app *App) {
 	if err := app.Client.AbortPipeline(Id); err != nil {
 		die("cannot abort pipeline: %v", err)
 	}
+
+	info("pipeline aborted")
 }
 
 func cmdPipelineRestart(args []string, app *App) {
@@ -68,4 +70,6 @@ func cmdPipelineRestart(args []string, app *App) {
 	if err := app.Client.RestartPipeline(Id); err != nil {
 		die("cannot restart pipeline: %v", err)
 	}
+
+	info("pipeline restarted")
 }
