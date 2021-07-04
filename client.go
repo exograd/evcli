@@ -98,7 +98,7 @@ func (c *Client) FetchProjects() ([]*Project, error) {
 	var page ProjectPage
 
 	query := url.Values{}
-	query.Add("size", "100")
+	query.Add("size", "20")
 	uri := url.URL{Path: "/v0/projects", RawQuery: query.Encode()}
 
 	err := c.SendRequest("GET", &uri, nil, &page)
@@ -122,6 +122,21 @@ func (c *Client) FetchProjectByName(name string) (*Project, error) {
 	return &project, nil
 }
 
+func (c *Client) SearchProjects(searchQuery ProjectSearchQuery) (Projects, error) {
+	var page ProjectPage
+
+	query := url.Values{}
+	query.Add("size", "20")
+	uri := url.URL{Path: "/v0/projects/search", RawQuery: query.Encode()}
+
+	err := c.SendRequest("POST", &uri, &searchQuery, &page)
+	if err != nil {
+		return nil, err
+	}
+
+	return page.Elements, nil
+}
+
 func (c *Client) CreateProject(project *Project) error {
 	uri := url.URL{Path: "/v0/projects"}
 
@@ -142,7 +157,7 @@ func (c *Client) DeployProject(id string, rs *ResourceSet) error {
 	return c.SendRequest("PUT", &uri, rs, nil)
 }
 
-func (c *Client) FetchPipelines() ([]*Pipeline, error) {
+func (c *Client) FetchPipelines() (Pipelines, error) {
 	var page PipelinePage
 
 	query := url.Values{}
@@ -170,7 +185,7 @@ func (c *Client) RestartPipeline(Id string) error {
 	return c.SendRequest("POST", &uri, nil, nil)
 }
 
-func (c *Client) FetchTasks() ([]*Task, error) {
+func (c *Client) FetchTasks() (Tasks, error) {
 	var page TaskPage
 
 	query := url.Values{}

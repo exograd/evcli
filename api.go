@@ -65,10 +65,25 @@ type ProjectPage struct {
 	Next     *Cursor    `json:"next,omitempty"`
 }
 
+type ProjectSearchQuery struct {
+	Id []string `json:"id"`
+}
+
 type Project struct {
 	Id          string `json:"id,omitempty"`
 	Name        string `json:"name"`
 	Description string `json:"description,omitempty"`
+}
+
+type Projects []*Project
+
+func (ps Projects) GroupById() map[string]*Project {
+	table := make(map[string]*Project)
+	for _, p := range ps {
+		table[p.Id] = p
+	}
+
+	return table
 }
 
 type PipelinePage struct {
@@ -92,6 +107,22 @@ type Pipeline struct {
 	EndTime      *time.Time `json:"end_time,omitempty"`
 }
 
+type Pipelines []*Pipeline
+
+func (ps Pipelines) ProjectIds() []string {
+	idTable := make(map[string]struct{})
+	for _, p := range ps {
+		idTable[p.ProjectId] = struct{}{}
+	}
+
+	ids := make([]string, 0, len(idTable))
+	for id := range idTable {
+		ids = append(ids, id)
+	}
+
+	return ids
+}
+
 type TaskPage struct {
 	Elements []*Task `json:"elements"`
 	Previous *Cursor `json:"previous,omitempty"`
@@ -110,3 +141,5 @@ type Task struct {
 	EndTime        *time.Time `json:"end_time,omitempty"`
 	FailureMessage string     `json:"failure_message,omitempty"`
 }
+
+type Tasks []*Task
