@@ -28,12 +28,28 @@ func cmdTaskList(args []string, app *App) {
 		die("cannot fetch tasks: %v", err)
 	}
 
-	header := []string{"id", "project", "pipeline", "instance",
-		"status", "start time", "end time"}
+	header := []string{
+		"id",
+		"project",
+		"pipeline",
+		"instance",
+		"status",
+		"start time",
+		"duration",
+	}
+
 	table := NewTable(header)
-	for _, t := range tasks {
-		row := []interface{}{t.Id, t.ProjectId, t.PipelineId, t.InstanceId,
-			t.Status, t.StartTime, t.EndTime}
+	for _, task := range tasks {
+		row := []interface{}{
+			task.Id,
+			task.ProjectId,
+			task.PipelineId,
+			task.InstanceId,
+			task.Status,
+			task.StartTime,
+			task.Duration(),
+		}
+
 		table.AddRow(row)
 	}
 

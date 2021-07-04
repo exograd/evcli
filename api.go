@@ -151,4 +151,13 @@ type Task struct {
 	FailureMessage string     `json:"failure_message,omitempty"`
 }
 
+func (t *Task) Duration() *time.Duration {
+	if t.StartTime == nil || t.EndTime == nil {
+		return nil
+	}
+
+	d := t.EndTime.Sub(*t.StartTime)
+	return &d
+}
+
 type Tasks []*Task
