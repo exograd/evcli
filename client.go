@@ -212,7 +212,25 @@ func NewRoundTripper(rt http.RoundTripper) *RoundTripper {
 }
 
 func (rt *RoundTripper) RoundTrip(req *http.Request) (*http.Response, error) {
+	start := time.Now()
 	res, err := rt.RoundTripper.RoundTrip(req)
-	trace("%s %s", req.Method, req.URL.String())
+	d := time.Now().Sub(start)
+
+	trace("%s %s %s", req.Method, req.URL.String(), FormatRequestDuration(d))
 	return res, err
+}
+
+func FormatRequestDuration(d time.Duration) string {
+	s := d.Seconds()
+
+	switch {
+	case s < 0.001:
+		return fmt.Sprintf("%dμs", d.Microseconds())
+
+	case s < 1.0:
+		return fmt.Sprintf("%dms", d.Milliseconds())
+
+	default:
+		return fmt.Sprintf("%.1fs", s)
+	}
 }
