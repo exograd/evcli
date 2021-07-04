@@ -216,7 +216,8 @@ func (rt *RoundTripper) RoundTrip(req *http.Request) (*http.Response, error) {
 	res, err := rt.RoundTripper.RoundTrip(req)
 	d := time.Now().Sub(start)
 
-	trace("%s %s %s", req.Method, req.URL.String(), FormatRequestDuration(d))
+	trace("%s %s %d %s", req.Method, req.URL.String(), res.StatusCode,
+		FormatRequestDuration(d))
 	return res, err
 }
 
