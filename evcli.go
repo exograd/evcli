@@ -27,6 +27,7 @@ func main() {
 	cl.AddFlag("v", "verbose", "print debug messages")
 	cl.AddFlag("q", "quiet", "do not print status and information messages")
 	cl.AddFlag("y", "yes", "skip all confirmations")
+	cl.AddFlag("", "no-color", "do not use colors")
 
 	cl.AddCommand("api", "interact with the eventline api")
 	cl.AddCommand("config", "interact with the evcli configuration")
@@ -46,7 +47,7 @@ func main() {
 		die("cannot load configuration: %v", err)
 	}
 
-	colorOutput = config.Interface.Color
+	colorOutput = config.Interface.Color && !cl.IsOptionSet("no-color")
 
 	// Application
 	client, err := NewClient(config)
