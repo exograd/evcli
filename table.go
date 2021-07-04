@@ -75,6 +75,12 @@ func (t *Table) RenderValue(value interface{}) string {
 		} else {
 			return v.Format(time.RFC3339)
 		}
+	case *time.Duration:
+		if v == nil {
+			return ""
+		} else {
+			return FormatDuration(*v)
+		}
 	}
 
 	return fmt.Sprintf("%v", value)
@@ -96,4 +102,20 @@ func (t *Table) ColumnWidths(rows [][]string) []int {
 	}
 
 	return widths
+}
+
+func FormatDuration(d time.Duration) string {
+	s := int(d.Seconds())
+
+	if s == 0 {
+		return ""
+	}
+
+	h := s / 3600
+	s = s - h*3600
+
+	m := s / 60
+	s = s - m*60
+
+	return fmt.Sprintf("%02d:%02d:%02d", h, m, s)
 }

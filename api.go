@@ -107,6 +107,15 @@ type Pipeline struct {
 	EndTime      *time.Time `json:"end_time,omitempty"`
 }
 
+func (p *Pipeline) Duration() *time.Duration {
+	if p.StartTime == nil || p.EndTime == nil {
+		return nil
+	}
+
+	d := p.EndTime.Sub(*p.StartTime)
+	return &d
+}
+
 type Pipelines []*Pipeline
 
 func (ps Pipelines) ProjectIds() []string {

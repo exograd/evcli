@@ -48,7 +48,8 @@ func cmdPipelineList(args []string, app *App) {
 		"creation time",
 		"status",
 		"start time",
-		"end time"}
+		"duration",
+	}
 
 	table := NewTable(header)
 	for _, pipeline := range pipelines {
@@ -64,7 +65,7 @@ func cmdPipelineList(args []string, app *App) {
 			pipeline.CreationTime,
 			pipeline.Status,
 			pipeline.StartTime,
-			pipeline.EndTime,
+			pipeline.Duration(),
 		}
 
 		table.AddRow(row)
