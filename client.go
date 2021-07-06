@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"strconv"
 	"time"
 )
 
@@ -216,7 +217,14 @@ func (rt *RoundTripper) RoundTrip(req *http.Request) (*http.Response, error) {
 	res, err := rt.RoundTripper.RoundTrip(req)
 	d := time.Now().Sub(start)
 
-	trace("%s %s %d %s", req.Method, req.URL.String(), res.StatusCode,
+	var statusString string
+	if res == nil {
+		statusString = "-"
+	} else {
+		statusString = strconv.Itoa(res.StatusCode)
+	}
+
+	trace("%s %s %s %s", req.Method, req.URL.String(), statusString,
 		FormatRequestDuration(d))
 	return res, err
 }
