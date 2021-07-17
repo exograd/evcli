@@ -13,6 +13,8 @@ import (
 )
 
 type Client struct {
+	ProjectId string
+
 	httpClient *http.Client
 
 	baseURI *url.URL
@@ -56,6 +58,10 @@ func (c *Client) SendRequest(method string, relURI *url.URL, body, dest interfac
 	req, err := http.NewRequest(method, uri.String(), bodyReader)
 	if err != nil {
 		return fmt.Errorf("cannot create request: %w", err)
+	}
+
+	if c.ProjectId != "" {
+		req.Header.Set("X-Eventline-Project-Id", c.ProjectId)
 	}
 
 	res, err := c.httpClient.Do(req)
