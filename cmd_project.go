@@ -89,6 +89,11 @@ func cmdProjectCreate(args []string, app *App) {
 		die("cannot create project: %v", err)
 	}
 
+	projectFile.Id = project.Id
+	if err := projectFile.Write(dirPath); err != nil {
+		die("cannot write project file in %s: %v", dirPath, err)
+	}
+
 	info("project %s created", project.Id)
 }
 

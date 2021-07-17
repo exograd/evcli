@@ -8,6 +8,7 @@ import (
 )
 
 type ProjectFile struct {
+	Id   string `json:"id,omitempty"`
 	Name string `json:"name"`
 }
 
