@@ -22,6 +22,8 @@ func cmdPipeline(args []string, app *App) {
 		cmd = cmdPipelineRestart
 	}
 
+	app.IdentifyCurrentProject()
+
 	cmd(cl.CommandNameAndArguments(), app)
 }
 

@@ -16,6 +16,8 @@ func cmdTask(args []string, app *App) {
 		cmd = cmdTaskList
 	}
 
+	app.IdentifyCurrentProject()
+
 	cmd(cl.CommandNameAndArguments(), app)
 }
 

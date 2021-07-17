@@ -15,11 +15,6 @@ var (
 	colorOutput bool
 )
 
-type App struct {
-	Config *Config
-	Client *Client
-}
-
 func main() {
 	// Command line
 	cl := cmdline.New()
@@ -28,6 +23,13 @@ func main() {
 	cl.AddFlag("q", "quiet", "do not print status and information messages")
 	cl.AddFlag("y", "yes", "skip all confirmations")
 	cl.AddFlag("", "no-color", "do not use colors")
+
+	cl.AddOption("", "project-path", "path",
+		"the path of the current project")
+	cl.AddOption("", "project-id", "id",
+		"the identifier of the current project")
+	cl.AddOption("p", "project-name", "name",
+		"the name of the current project")
 
 	cl.AddCommand("api", "interact with the eventline api")
 	cl.AddCommand("config", "interact with the evcli configuration")
@@ -55,9 +57,22 @@ func main() {
 		die("cannot create api client: %v", err)
 	}
 
+	optionValue := func(name string) *string {
+		if !cl.IsOptionSet(name) {
+			return nil
+		}
+
+		value := cl.OptionValue(name)
+		return &value
+	}
+
 	app := &App{
 		Config: config,
 		Client: client,
+
+		projectPathOption: optionValue("project-path"),
+		projectIdOption:   optionValue("project-id"),
+		projectNameOption: optionValue("project-name"),
 	}
 
 	// Commands
