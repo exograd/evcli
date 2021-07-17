@@ -12,6 +12,22 @@ type ProjectFile struct {
 	Name string `json:"name"`
 }
 
+func (pf *ProjectFile) UnmarshalJSON(data []byte) error {
+	type ProjectFile2 ProjectFile
+
+	pf2 := ProjectFile2(*pf)
+	if err := json.Unmarshal(data, &pf2); err != nil {
+		return err
+	}
+
+	if pf2.Id == "" {
+		return fmt.Errorf("missing project id")
+	}
+
+	*pf = ProjectFile(pf2)
+	return nil
+}
+
 func (pf *ProjectFile) Read(dirPath string) error {
 	filePath := path.Join(dirPath, "eventline-project.json")
 

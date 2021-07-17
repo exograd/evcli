@@ -123,22 +123,16 @@ func cmdProjectDelete(args []string, app *App) {
 
 func cmdProjectDeploy(args []string, app *App) {
 	cl := cmdline.New()
-	cl.AddArgument("name", "the name of the project")
 	cl.AddOption("d", "directory", "path",
 		"the directory containing project data")
 	cl.SetOptionDefault("directory", ".")
 	cl.Parse(args)
 
-	name := cl.ArgumentValue("name")
 	dirPath := cl.OptionValue("directory")
 
 	var projectFile ProjectFile
 	if err := projectFile.Read(dirPath); err != nil {
 		die("cannot read project file in %s: %v", dirPath, err)
-	}
-
-	if projectFile.Name != name {
-		die("directory %s contains project %s", dirPath, projectFile.Name)
 	}
 
 	var resourceSet ResourceSet
