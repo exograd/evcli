@@ -89,7 +89,7 @@ func trace(format string, args ...interface{}) {
 }
 
 func info(format string, args ...interface{}) {
-	if !quiet {
+	if quiet {
 		return
 	}
 
