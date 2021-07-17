@@ -30,8 +30,8 @@ func (err *APIError) UnmarshalJSON(data []byte) error {
 	type APIError2 APIError
 
 	err2 := APIError2(*err)
-	if err := json.Unmarshal(data, &err2); err != nil {
-		return err
+	if jsonErr := json.Unmarshal(data, &err2); jsonErr != nil {
+		return jsonErr
 	}
 
 	switch err2.Code {
