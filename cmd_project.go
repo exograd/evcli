@@ -44,10 +44,10 @@ func cmdProjectList(args []string, app *App) {
 		die("cannot fetch projects: %v", err)
 	}
 
-	header := []string{"id", "name", "description"}
+	header := []string{"id", "name"}
 	table := NewTable(header)
 	for _, p := range projects {
-		row := []interface{}{p.Id, p.Name, p.Description}
+		row := []interface{}{p.Id, p.Name}
 		table.AddRow(row)
 	}
 
@@ -58,8 +58,6 @@ func cmdProjectCreate(args []string, app *App) {
 	cl := cmdline.New()
 	cl.AddArgument("name", "the name of the project")
 	cl.AddArgument("path", "the directory which will contain project data")
-	cl.AddOption("d", "description", "description",
-		"a description of the project")
 	cl.Parse(args)
 
 	name := cl.ArgumentValue("name")
@@ -84,8 +82,7 @@ func cmdProjectCreate(args []string, app *App) {
 	}
 
 	project := &Project{
-		Name:        name,
-		Description: cl.OptionValue("description"),
+		Name: name,
 	}
 
 	if err := app.Client.CreateProject(project); err != nil {

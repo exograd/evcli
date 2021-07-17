@@ -70,9 +70,8 @@ type ProjectSearchQuery struct {
 }
 
 type Project struct {
-	Id          string `json:"id,omitempty"`
-	Name        string `json:"name"`
-	Description string `json:"description,omitempty"`
+	Id   string `json:"id,omitempty"`
+	Name string `json:"name"`
 }
 
 type Projects []*Project
