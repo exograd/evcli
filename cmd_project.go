@@ -146,12 +146,8 @@ func cmdProjectDeploy(args []string, app *App) {
 		die("cannot load resources: %v", err)
 	}
 
-	project, err := app.Client.FetchProjectByName(name)
+	err := app.Client.DeployProject(projectFile.Id, &resourceSet)
 	if err != nil {
-		die("cannot fetch project: %v", err)
-	}
-
-	if err := app.Client.DeployProject(project.Id, &resourceSet); err != nil {
 		var apiErr *APIError
 		if errors.As(err, &apiErr) && apiErr.Code == "invalid_request_body" {
 			invalidRequestBodyErr := apiErr.Data.(InvalidRequestBodyError)
