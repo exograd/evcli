@@ -36,38 +36,24 @@ func cmdPipelineList(args []string, app *App) {
 		die("cannot fetch pipelines: %v", err)
 	}
 
-	projectSearchQuery := ProjectSearchQuery{Id: pipelines.ProjectIds()}
-	projects, err := app.Client.SearchProjects(projectSearchQuery)
-	if err != nil {
-		die("cannot fetch projects: %v", err)
-	}
-	projectTable := projects.GroupById()
-
 	header := []string{
 		"id",
 		"name",
-		"project",
 		"creation time",
-		"status",
 		"start time",
 		"duration",
+		"status",
 	}
 
 	table := NewTable(header)
 	for _, pipeline := range pipelines {
-		project, found := projectTable[pipeline.ProjectId]
-		if !found {
-			continue
-		}
-
 		row := []interface{}{
 			pipeline.Id,
 			pipeline.Name,
-			project.Name,
 			pipeline.CreationTime,
-			pipeline.Status,
 			pipeline.StartTime,
 			pipeline.Duration(),
+			pipeline.Status,
 		}
 
 		table.AddRow(row)

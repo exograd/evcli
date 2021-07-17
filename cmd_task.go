@@ -32,24 +32,22 @@ func cmdTaskList(args []string, app *App) {
 
 	header := []string{
 		"id",
-		"project",
 		"pipeline",
 		"instance",
-		"status",
 		"start time",
 		"duration",
+		"status",
 	}
 
 	table := NewTable(header)
 	for _, task := range tasks {
 		row := []interface{}{
 			task.Id,
-			task.ProjectId,
 			task.PipelineId,
 			task.InstanceId,
-			task.Status,
 			task.StartTime,
 			task.Duration(),
+			task.Status,
 		}
 
 		table.AddRow(row)
