@@ -117,7 +117,7 @@ func (c *Client) FetchProjects() ([]*Project, error) {
 }
 
 func (c *Client) FetchProjectByName(name string) (*Project, error) {
-	uri := url.URL{Path: "/v0/projects/name/" + url.PathEscape(name)}
+	uri := url.URL{Path: "/v0/projects/name/" + name}
 
 	var project Project
 
@@ -151,14 +151,14 @@ func (c *Client) CreateProject(project *Project) error {
 }
 
 func (c *Client) DeleteProject(id string) error {
-	uri := url.URL{Path: "/v0/projects/id/" + url.PathEscape(id)}
+	uri := url.URL{Path: "/v0/projects/id/" + id}
 
 	return c.SendRequest("DELETE", &uri, nil, nil)
 }
 
 func (c *Client) DeployProject(id string, rs *ResourceSet) error {
 	uri := url.URL{
-		Path: "/v0/projects/id/" + url.PathEscape(id) + "/resources",
+		Path: "/v0/projects/id/" + id + "/resources",
 	}
 
 	return c.SendRequest("PUT", &uri, rs, nil)
@@ -181,13 +181,13 @@ func (c *Client) FetchPipelines() (Pipelines, error) {
 }
 
 func (c *Client) AbortPipeline(Id string) error {
-	uri := url.URL{Path: "/v0/pipelines/id/" + url.PathEscape(Id) + "/abort"}
+	uri := url.URL{Path: "/v0/pipelines/id/" + Id + "/abort"}
 
 	return c.SendRequest("POST", &uri, nil, nil)
 }
 
 func (c *Client) RestartPipeline(Id string) error {
-	uri := url.URL{Path: "/v0/pipelines/id/" + url.PathEscape(Id) + "/restart"}
+	uri := url.URL{Path: "/v0/pipelines/id/" + Id + "/restart"}
 
 	return c.SendRequest("POST", &uri, nil, nil)
 }
