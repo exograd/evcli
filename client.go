@@ -180,14 +180,14 @@ func (c *Client) FetchPipelines() (Pipelines, error) {
 	return page.Elements, nil
 }
 
-func (c *Client) AbortPipeline(Id string) error {
-	uri := url.URL{Path: "/v0/pipelines/id/" + Id + "/abort"}
+func (c *Client) AbortPipeline(id string) error {
+	uri := url.URL{Path: "/v0/pipelines/id/" + id + "/abort"}
 
 	return c.SendRequest("POST", &uri, nil, nil)
 }
 
-func (c *Client) RestartPipeline(Id string) error {
-	uri := url.URL{Path: "/v0/pipelines/id/" + Id + "/restart"}
+func (c *Client) RestartPipeline(id string) error {
+	uri := url.URL{Path: "/v0/pipelines/id/" + id + "/restart"}
 
 	return c.SendRequest("POST", &uri, nil, nil)
 }
@@ -206,6 +206,18 @@ func (c *Client) FetchTasks() (Tasks, error) {
 	}
 
 	return page.Elements, nil
+}
+
+func (c *Client) CreateEvent(newEvent *NewEvent) (Events, error) {
+	var events Events
+
+	uri := url.URL{Path: "/v0/events"}
+	err := c.SendRequest("POST", &uri, newEvent, &events)
+	if err != nil {
+		return nil, err
+	}
+
+	return events, nil
 }
 
 type RoundTripper struct {

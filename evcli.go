@@ -36,6 +36,7 @@ func main() {
 	cl.AddCommand("project", "manipulate projects")
 	cl.AddCommand("pipeline", "manipulate pipelines")
 	cl.AddCommand("task", "manipulate tasks")
+	cl.AddCommand("event", "manipulate events")
 
 	cl.Parse(os.Args)
 
@@ -89,6 +90,8 @@ func main() {
 		cmd = cmdPipeline
 	case "task":
 		cmd = cmdTask
+	case "event":
+		cmd = cmdEvent
 	}
 
 	// Main

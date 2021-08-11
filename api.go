@@ -160,3 +160,24 @@ func (t *Task) Duration() *time.Duration {
 }
 
 type Tasks []*Task
+
+type NewEvent struct {
+	EventTime *time.Time      `json:"event_time,omitempty"`
+	Connector string          `json:"connector"`
+	Name      string          `json:"name"`
+	Data      json.RawMessage `json:"data"`
+}
+
+type Event struct {
+	Id           string          `json:"id"`
+	OrgId        string          `json:"org_id"`
+	TriggerId    string          `json:"trigger_id,omitempty"`
+	CreationTime time.Time       `json:"creation_time"`
+	EventTime    time.Time       `json:"event_time"`
+	Connector    string          `json:"connector"`
+	Name         string          `json:"name"`
+	Data         json.RawMessage `json:"data"`
+	Processed    bool            `json:"processed,omitempty"`
+}
+
+type Events []*Event
