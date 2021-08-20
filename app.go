@@ -28,7 +28,7 @@ func (a *App) LoadAPIKey() {
 		return
 	}
 
-	err("missing or empty API key")
+	warn("missing or empty API key")
 	info("\nYou need to provide an API key to interact with Eventline. " +
 		"You can either edit the evcli configuration file or use the " +
 		"following command:")

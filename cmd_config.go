@@ -31,13 +31,35 @@ func cmdConfig(args []string, app *App) {
 
 func cmdConfigShow(args []string, app *App) {
 	cl := cmdline.New()
+	cl.AddFlag("e", "entries",
+		"show a list of entries instead of the entire configuration")
 	cl.Parse(args)
 
-	encoder := json.NewEncoder(os.Stdout)
-	encoder.SetIndent("", "  ")
+	if cl.IsOptionSet("entries") {
+		var names []string
+		for _, e := range ConfigEntries {
+			names = append(names, e.Name)
+		}
 
-	if err := encoder.Encode(app.Config); err != nil {
-		die("cannot encode configuration: %v", err)
+		table := NewTable([]string{"name", "value"})
+		for _, name := range names {
+			value, err := app.Config.GetEntry(name)
+			if err != nil {
+				warn("cannot read entry %q: %v", name, err)
+				continue
+			}
+
+			table.AddRow([]interface{}{name, value})
+		}
+
+		table.Write()
+	} else {
+		encoder := json.NewEncoder(os.Stdout)
+		encoder.SetIndent("", "  ")
+
+		if err := encoder.Encode(app.Config); err != nil {
+			die("cannot encode configuration: %v", err)
+		}
 	}
 }
 
