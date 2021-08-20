@@ -119,7 +119,9 @@ func (c *Config) SetEntry(name, value string) error {
 		return fmt.Errorf("unknown configuration entry %q", name)
 	}
 
-	e.Set(c, value)
+	if err := e.Set(c, value); err != nil {
+		return fmt.Errorf("invalid value: %v", err)
+	}
 
 	return nil
 }
