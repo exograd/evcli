@@ -76,6 +76,10 @@ func main() {
 		projectNameOption: optionValue("project-name"),
 	}
 
+	if cmdName := cl.CommandName(); cmdName != "config" {
+		app.LoadAPIKey()
+	}
+
 	// Commands
 	var cmd func([]string, *App)
 
@@ -114,8 +118,12 @@ func info(format string, args ...interface{}) {
 	fmt.Fprintf(os.Stderr, format+"\n", args...)
 }
 
-func die(format string, args ...interface{}) {
-	msg := fmt.Sprintf("error: "+format, args...)
+func err(format string, args ...interface{}) {
+	msg := fmt.Sprintf("Error: "+format+".", args...)
 	fmt.Fprintf(os.Stderr, "%s\n", Colorize(ColorRed, msg))
+}
+
+func die(format string, args ...interface{}) {
+	err(format, args...)
 	os.Exit(1)
 }

@@ -13,6 +13,7 @@ import (
 )
 
 type Client struct {
+	APIKey    string
 	ProjectId string
 
 	httpClient *http.Client
@@ -58,6 +59,10 @@ func (c *Client) SendRequest(method string, relURI *url.URL, body, dest interfac
 	req, err := http.NewRequest(method, uri.String(), bodyReader)
 	if err != nil {
 		return fmt.Errorf("cannot create request: %w", err)
+	}
+
+	if c.APIKey != "" {
+		req.Header.Set("Authorization", "Bearer "+c.APIKey)
 	}
 
 	if c.ProjectId != "" {

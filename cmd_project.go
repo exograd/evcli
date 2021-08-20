@@ -135,7 +135,6 @@ func cmdProjectDeploy(args []string, app *App) {
 		die("cannot read project file in %s: %v", dirPath, err)
 	}
 
-	app.ProjectId = projectFile.Id
 	app.Client.ProjectId = projectFile.Id
 
 	var resourceSet ResourceSet
