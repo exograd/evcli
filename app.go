@@ -16,18 +16,26 @@ type App struct {
 }
 
 func (a *App) LoadAPIKey() {
-	if a.Config.API.Key == "" {
-		err("missing or empty API key")
-		info("\nYou need to provide an API key to interact with Eventline. " +
-			"You can either edit the evcli configuration file or use the " +
-			"following command:")
-		info("\n\tevcli config set api.key <key>")
-		info("\nAlternatively, you can set the EVCLI_API_KEY environment " +
-			"variable.")
-		os.Exit(1)
+	if key := os.Getenv("EVCLI_API_KEY"); key != "" {
+		trace("using api key from EVCLI_API_KEY environment variable")
+		a.Client.APIKey = key
+		return
 	}
 
-	a.Client.APIKey = a.Config.API.Key
+	if key := a.Config.API.Key; key != "" {
+		trace("using api key from configuration")
+		a.Client.APIKey = key
+		return
+	}
+
+	err("missing or empty API key")
+	info("\nYou need to provide an API key to interact with Eventline. " +
+		"You can either edit the evcli configuration file or use the " +
+		"following command:")
+	info("\n\tevcli config set api.key <key>")
+	info("\nAlternatively, you can set the EVCLI_API_KEY environment " +
+		"variable.")
+	os.Exit(1)
 }
 
 func (a *App) IdentifyCurrentProject() {
