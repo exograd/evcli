@@ -15,7 +15,7 @@ type Config struct {
 }
 
 type InterfaceConfig struct {
-	Color bool `json:"color,omitempty"`
+	Color bool `json:"color"`
 }
 
 type APIConfig struct {
