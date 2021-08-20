@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -34,6 +35,14 @@ func LoadConfig() (*Config, error) {
 	}
 
 	return config, nil
+}
+
+func (c *Config) Write() error {
+	filePath := ConfigPath()
+
+	trace("writing configuration to %s", filePath)
+
+	return c.WriteFile(filePath)
 }
 
 func ConfigPath() string {
@@ -74,6 +83,43 @@ func (c *Config) LoadData(data []byte) error {
 	if err := json.Unmarshal(data, c); err != nil {
 		return fmt.Errorf("cannot parse json data: %w", err)
 	}
+
+	return nil
+}
+
+func (c *Config) WriteFile(filePath string) error {
+	var buf bytes.Buffer
+
+	e := json.NewEncoder(&buf)
+	e.SetIndent("", "  ")
+
+	if err := e.Encode(c); err != nil {
+		return fmt.Errorf("cannot encode configuration: %w", err)
+	}
+
+	if err := ioutil.WriteFile(filePath, buf.Bytes(), 0600); err != nil {
+		return fmt.Errorf("cannot write file: %w", err)
+	}
+
+	return nil
+}
+
+func (c *Config) GetEntry(name string) (string, error) {
+	e, found := ConfigEntries[name]
+	if !found {
+		return "", fmt.Errorf("unknown configuration entry %q", name)
+	}
+
+	return e.Get(c), nil
+}
+
+func (c *Config) SetEntry(name, value string) error {
+	e, found := ConfigEntries[name]
+	if !found {
+		return fmt.Errorf("unknown configuration entry %q", name)
+	}
+
+	e.Set(c, value)
 
 	return nil
 }
