@@ -8,6 +8,8 @@ import (
 )
 
 var (
+	buildId string
+
 	verbose           bool
 	quiet             bool
 	skipConfirmations bool
@@ -36,6 +38,7 @@ func main() {
 	cl.AddCommand("project", "manipulate projects")
 	cl.AddCommand("pipeline", "manipulate pipelines")
 	cl.AddCommand("event", "manipulate events")
+	cl.AddCommand("version", "print the version of evcli and exit")
 
 	cl.Parse(os.Args)
 
@@ -93,6 +96,8 @@ func main() {
 		cmd = cmdPipeline
 	case "event":
 		cmd = cmdEvent
+	case "version":
+		cmd = cmdVersion
 	}
 
 	// Main
