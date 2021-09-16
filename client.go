@@ -189,6 +189,32 @@ func (c *Client) FetchCommands() ([]*Resource, error) {
 	return commands, nil
 }
 
+func (c *Client) FetchCommandByName(name string) (*Resource, error) {
+	uri := url.URL{Path: "/v0/commands/name/" + name}
+
+	var command Resource
+
+	err := c.SendRequest("GET", &uri, nil, &command)
+	if err != nil {
+		return nil, err
+	}
+
+	return &command, nil
+}
+
+func (c *Client) ExecuteCommand(id string, execution *CommandExecution) (*CommandExecutionResult, error) {
+	uri := url.URL{Path: "/v0/commands/id/" + id + "/execute"}
+
+	var result CommandExecutionResult
+
+	err := c.SendRequest("POST", &uri, execution, &result)
+	if err != nil {
+		return nil, err
+	}
+
+	return &result, nil
+}
+
 func (c *Client) FetchPipelines() (Pipelines, error) {
 	var page PipelinePage
 

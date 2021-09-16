@@ -120,6 +120,7 @@ func (spec *ResourceSpec) UnmarshalJSON(data []byte) error {
 			return fmt.Errorf("invalid command data: %w", err)
 		}
 
+		spec2.RawData = nil
 		spec2.Data = &command
 
 	case "task":
@@ -258,3 +259,11 @@ type Event struct {
 }
 
 type Events []*Event
+
+type CommandExecution struct {
+	Parameters map[string]interface{} `json:"parameters"`
+}
+
+type CommandExecutionResult struct {
+	PipelineIds []string `json:"pipeline_ids"`
+}
