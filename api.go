@@ -65,10 +65,6 @@ type ProjectPage struct {
 	Next     *Cursor    `json:"next,omitempty"`
 }
 
-type ProjectSearchQuery struct {
-	Id []string `json:"id"`
-}
-
 type Project struct {
 	Id   string `json:"id,omitempty"`
 	Name string `json:"name"`
