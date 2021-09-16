@@ -170,21 +170,38 @@ func (c *Client) DeployProject(id string, rs *ResourceSet) error {
 }
 
 func (c *Client) FetchCommands() ([]*Resource, error) {
-	var page ResourcePage
+	var commands Resources
 
-	// TODO pagination
+	cursor := Cursor{Size: 20}
 
-	query := url.Values{}
-	query.Add("type", "command")
-	query.Add("size", "20")
-	uri := url.URL{Path: "/v0/resources", RawQuery: query.Encode()}
+	for {
+		var page ResourcePage
 
-	err := c.SendRequest("GET", &uri, nil, &page)
-	if err != nil {
-		return nil, err
+		query := url.Values{}
+
+		query.Add("type", "command")
+		query.Add("size", strconv.FormatUint(uint64(cursor.Size), 10))
+		if cursor.After != "" {
+			query.Add("after", cursor.After)
+		}
+
+		uri := url.URL{Path: "/v0/resources", RawQuery: query.Encode()}
+
+		err := c.SendRequest("GET", &uri, nil, &page)
+		if err != nil {
+			return nil, err
+		}
+
+		commands = append(commands, page.Elements...)
+
+		if page.Next == nil {
+			break
+		}
+
+		cursor = *page.Next
 	}
 
-	return page.Elements, nil
+	return commands, nil
 }
 
 func (c *Client) FetchPipelines() (Pipelines, error) {
