@@ -36,6 +36,7 @@ func main() {
 	cl.AddCommand("api", "interact with the eventline api")
 	cl.AddCommand("config", "interact with the evcli configuration")
 	cl.AddCommand("project", "manipulate projects")
+	cl.AddCommand("command", "manipulate commands")
 	cl.AddCommand("pipeline", "manipulate pipelines")
 	cl.AddCommand("event", "manipulate events")
 	cl.AddCommand("version", "print the version of evcli and exit")
@@ -92,6 +93,8 @@ func main() {
 		cmd = cmdConfig
 	case "project":
 		cmd = cmdProject
+	case "command":
+		cmd = cmdCommand
 	case "pipeline":
 		cmd = cmdPipeline
 	case "event":

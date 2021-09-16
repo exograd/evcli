@@ -85,6 +85,86 @@ func (ps Projects) GroupById() map[string]*Project {
 	return table
 }
 
+type Resource struct {
+	Id           string       `json:"id"`
+	OrgId        string       `json:"org_id"`
+	ProjectId    string       `json:"project_id"`
+	CreationTime time.Time    `json:"creation_time"`
+	UpdateTime   time.Time    `json:"update_time"`
+	Disabled     bool         `json:"disabled,omitempty"`
+	Spec         ResourceSpec `json:"spec"`
+}
+
+type ResourceSpec struct {
+	Type    string          `json:"type"`
+	Version int             `json:"version"`
+	Name    string          `json:"name"`
+	RawData json.RawMessage `json:"data"`
+	Data    ResourceData    `json:"-"`
+}
+
+func (spec *ResourceSpec) UnmarshalJSON(data []byte) error {
+	type ResourceSpec2 ResourceSpec
+
+	spec2 := ResourceSpec2(*spec)
+	if err := json.Unmarshal(data, &spec2); err != nil {
+		return err
+	}
+
+	switch spec2.Type {
+	case "trigger":
+		// TODO
+		return fmt.Errorf("unsupported resource type %q", spec2.Type)
+
+	case "command":
+		var command CommandData
+
+		if err := json.Unmarshal(spec2.RawData, &command); err != nil {
+			return fmt.Errorf("invalid command data: %w", err)
+		}
+
+		spec2.Data = &command
+
+	case "task":
+		// TODO
+		return fmt.Errorf("unsupported resource type %q", spec2.Type)
+
+	case "pipeline":
+		// TODO
+		return fmt.Errorf("unsupported resource type %q", spec2.Type)
+
+	default:
+		return fmt.Errorf("unknown resource type %q", spec2.Type)
+	}
+
+	*spec = ResourceSpec(spec2)
+	return nil
+}
+
+type ResourceData interface{}
+
+type Resources []*Resource
+
+type ResourcePage struct {
+	Elements []*Resource `json:"elements"`
+	Previous *Cursor     `json:"previous,omitempty"`
+	Next     *Cursor     `json:"next,omitempty"`
+}
+
+type CommandData struct {
+	Parameters Parameters `json:"parameters"`
+	Pipelines  []string   `json:"pipelines"`
+}
+
+type Parameter struct {
+	Name        string      `json:"name"`
+	Type        string      `json:"type"`
+	Default     interface{} `json:"default"`
+	Description string      `json:"description"`
+}
+
+type Parameters []*Parameter
+
 type PipelinePage struct {
 	Elements []*Pipeline `json:"elements"`
 	Previous *Cursor     `json:"previous,omitempty"`

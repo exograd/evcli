@@ -15,11 +15,11 @@ import (
 )
 
 type ResourceSet struct {
-	Resources []*Resource   `json:"-"`
-	Specs     []interface{} `json:"specs"`
+	Resources []*ResourceFile `json:"-"`
+	Specs     []interface{}   `json:"specs"`
 }
 
-type Resource struct {
+type ResourceFile struct {
 	Path     string
 	Document int
 	Value    interface{}
@@ -64,7 +64,7 @@ func (rs *ResourceSet) Load(dirPath string) error {
 	return nil
 }
 
-func LoadResourceFile(filePath string) ([]*Resource, error) {
+func LoadResourceFile(filePath string) ([]*ResourceFile, error) {
 	data, err := ioutil.ReadFile(filePath)
 	if err != nil {
 		return nil, fmt.Errorf("cannot read file: %w", err)
@@ -72,7 +72,7 @@ func LoadResourceFile(filePath string) ([]*Resource, error) {
 
 	decoder := yaml.NewDecoder(bytes.NewReader(data))
 
-	resources := []*Resource{}
+	resources := []*ResourceFile{}
 	document := 1
 
 	for {
@@ -85,7 +85,7 @@ func LoadResourceFile(filePath string) ([]*Resource, error) {
 			return nil, fmt.Errorf("cannot decode yaml data: %w", err)
 		}
 
-		resource := Resource{
+		resource := ResourceFile{
 			Path:     filePath,
 			Document: document,
 			Value:    value,

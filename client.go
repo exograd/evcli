@@ -169,6 +169,24 @@ func (c *Client) DeployProject(id string, rs *ResourceSet) error {
 	return c.SendRequest("PUT", &uri, rs, nil)
 }
 
+func (c *Client) FetchCommands() ([]*Resource, error) {
+	var page ResourcePage
+
+	// TODO pagination
+
+	query := url.Values{}
+	query.Add("type", "command")
+	query.Add("size", "20")
+	uri := url.URL{Path: "/v0/resources", RawQuery: query.Encode()}
+
+	err := c.SendRequest("GET", &uri, nil, &page)
+	if err != nil {
+		return nil, err
+	}
+
+	return page.Elements, nil
+}
+
 func (c *Client) FetchPipelines() (Pipelines, error) {
 	var page PipelinePage
 
