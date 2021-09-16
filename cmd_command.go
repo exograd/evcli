@@ -30,10 +30,10 @@ func cmdCommandList(args []string, app *App) {
 		die("cannot fetch commands: %v", err)
 	}
 
-	header := []string{"name"}
+	header := []string{"name", "description"}
 	table := NewTable(header)
 	for _, c := range projects {
-		row := []interface{}{c.Spec.Name}
+		row := []interface{}{c.Spec.Name, c.Spec.Description}
 		table.AddRow(row)
 	}
 

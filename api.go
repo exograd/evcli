@@ -96,11 +96,12 @@ type Resource struct {
 }
 
 type ResourceSpec struct {
-	Type    string          `json:"type"`
-	Version int             `json:"version"`
-	Name    string          `json:"name"`
-	RawData json.RawMessage `json:"data"`
-	Data    ResourceData    `json:"-"`
+	Type        string          `json:"type"`
+	Version     int             `json:"version"`
+	Name        string          `json:"name"`
+	Description string          `json:"description,omitempty"`
+	RawData     json.RawMessage `json:"data"`
+	Data        ResourceData    `json:"-"`
 }
 
 func (spec *ResourceSpec) UnmarshalJSON(data []byte) error {
