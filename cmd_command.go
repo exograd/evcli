@@ -12,6 +12,7 @@ import (
 func cmdCommand(args []string, app *App) {
 	cl := cmdline.New()
 	cl.AddCommand("list", "list available commands")
+	cl.AddCommand("info", "print information about a command")
 	cl.AddCommand("execute", "execute a command")
 	cl.Parse(args)
 
@@ -20,6 +21,8 @@ func cmdCommand(args []string, app *App) {
 	switch cl.CommandName() {
 	case "list":
 		cmd = cmdCommandList
+	case "info":
+		cmd = cmdCommandInfo
 	case "execute":
 		cmd = cmdCommandExecute
 	}
@@ -46,6 +49,44 @@ func cmdCommandList(args []string, app *App) {
 	}
 
 	table.Write()
+}
+
+func cmdCommandInfo(args []string, app *App) {
+	cl := cmdline.New()
+	cl.AddArgument("name", "the name of the command")
+	cl.Parse(args)
+
+	name := cl.ArgumentValue("name")
+
+	command, err := app.Client.FetchCommandByName(name)
+	if err != nil {
+		var apiErr *APIError
+		if errors.As(err, &apiErr) && apiErr.Code == "unknown_resource" {
+			die("unknown command %q", name)
+		}
+
+		die("cannot fetch command: %v", err)
+	}
+
+	commandData := command.Spec.Data.(*CommandData)
+
+	fmt.Printf("%-20s %s\n",
+		Colorize(ColorYellow, "Name:"), command.Spec.Name)
+	fmt.Printf("%-20s %s\n",
+		Colorize(ColorYellow, "Description:"), command.Spec.Description)
+	fmt.Printf("%-20s\n",
+		Colorize(ColorYellow, "Parameters:"))
+	for _, p := range commandData.Parameters {
+		fmt.Printf("  - %s: %s\n",
+			Colorize(ColorYellow, p.Name), Colorize(ColorGreen, p.Type))
+		if p.Description != "" {
+			fmt.Printf("    %s\n", p.Description)
+		}
+		if p.Default != nil {
+			defaultString := fmt.Sprintf("%v", p.Default)
+			fmt.Printf("    Default: %s\n", Colorize(ColorRed, defaultString))
+		}
+	}
 }
 
 func cmdCommandExecute(args []string, app *App) {
