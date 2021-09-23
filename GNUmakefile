@@ -7,7 +7,7 @@ LDFLAGS = -X main.buildId=$(BUILD_ID)
 all: build
 
 build: FORCE
-	go build -ldflags "$(LDFLAGS)" -o $(BIN)
+	CGO_ENABLED=0 go build -ldflags "$(LDFLAGS)" -o $(BIN)
 
 test:
 	go test -race ./..
