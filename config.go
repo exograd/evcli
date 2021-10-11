@@ -28,7 +28,7 @@ func LoadConfig() (*Config, error) {
 
 	filePath := ConfigPath()
 
-	trace("loading configuration from %s", filePath)
+	p.Debug(1, "loading configuration from %s", filePath)
 
 	if err := config.LoadFile(filePath); err != nil {
 		return nil, fmt.Errorf("cannot load %q: %w", filePath, err)
@@ -40,7 +40,7 @@ func LoadConfig() (*Config, error) {
 func (c *Config) Write() error {
 	filePath := ConfigPath()
 
-	trace("writing configuration to %s", filePath)
+	p.Debug(1, "writing configuration to %s", filePath)
 
 	return c.WriteFile(filePath)
 }
@@ -52,7 +52,7 @@ func ConfigPath() string {
 
 	homePath, err := os.UserHomeDir()
 	if err != nil {
-		die("cannot locate user home directory: %v", err)
+		p.Fatal("cannot locate user home directory: %v", err)
 	}
 
 	return path.Join(homePath, ".evcli", "config.json")

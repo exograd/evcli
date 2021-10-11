@@ -31,7 +31,7 @@ func (pf *ProjectFile) UnmarshalJSON(data []byte) error {
 func (pf *ProjectFile) Read(dirPath string) error {
 	filePath := path.Join(dirPath, "eventline-project.json")
 
-	trace("reading project file %s", filePath)
+	p.Debug(1, "reading project file %s", filePath)
 	data, err := ioutil.ReadFile(filePath)
 	if err != nil {
 		return fmt.Errorf("cannot read file: %w", err)
@@ -52,7 +52,7 @@ func (pf *ProjectFile) Write(dirPath string) error {
 
 	filePath := path.Join(dirPath, "eventline-project.json")
 
-	trace("writing project file %s", filePath)
+	p.Debug(1, "writing project file %s", filePath)
 
 	return ioutil.WriteFile(filePath, data, 0644)
 }

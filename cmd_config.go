@@ -5,37 +5,36 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/galdor/go-cmdline"
+	"github.com/galdor/go-program"
 )
 
-func cmdConfig(args []string, app *App) {
-	cl := cmdline.New()
-	cl.AddCommand("show", "print the configuration and exit")
-	cl.AddCommand("get", "extract a value from the configuration and print it")
-	cl.AddCommand("set", "set a value in the configuration")
-	cl.Parse(args)
+func addConfigCommands() {
+	var c *program.Command
 
-	var cmd func([]string, *App)
+	// show-config
+	c = p.AddCommand("show-config", "print the configuration",
+		cmdShowConfig)
 
-	switch cl.CommandName() {
-	case "show":
-		cmd = cmdConfigShow
-	case "get":
-		cmd = cmdConfigGet
-	case "set":
-		cmd = cmdConfigSet
-	}
+	c.AddFlag("e", "entries",
+		"show a list of entries instead of the entire configuration")
 
-	cmd(cl.CommandNameAndArguments(), app)
+	// get-config
+	c = p.AddCommand("get-config",
+		"extract a value from the configuration and print it",
+		cmdGetConfig)
+
+	c.AddArgument("name", "the name of the entry")
+
+	// set-config
+	c = p.AddCommand("set-config", "set a value in the configuration",
+		cmdSetConfig)
+
+	c.AddArgument("name", "the name of the entry")
+	c.AddArgument("value", "the value of the entry")
 }
 
-func cmdConfigShow(args []string, app *App) {
-	cl := cmdline.New()
-	cl.AddFlag("e", "entries",
-		"show a list of entries instead of the entire configuration")
-	cl.Parse(args)
-
-	if cl.IsOptionSet("entries") {
+func cmdShowConfig(p *program.Program) {
+	if p.IsOptionSet("entries") {
 		var names []string
 		for _, e := range ConfigEntries {
 			names = append(names, e.Name)
@@ -45,7 +44,7 @@ func cmdConfigShow(args []string, app *App) {
 		for _, name := range names {
 			value, err := app.Config.GetEntry(name)
 			if err != nil {
-				warn("cannot read entry %q: %v", name, err)
+				p.Error("cannot read entry %q: %v", name, err)
 				continue
 			}
 
@@ -58,40 +57,31 @@ func cmdConfigShow(args []string, app *App) {
 		encoder.SetIndent("", "  ")
 
 		if err := encoder.Encode(app.Config); err != nil {
-			die("cannot encode configuration: %v", err)
+			p.Fatal("cannot encode configuration: %v", err)
 		}
 	}
 }
 
-func cmdConfigGet(args []string, app *App) {
-	cl := cmdline.New()
-	cl.AddArgument("name", "the name of the entry")
-	cl.Parse(args)
-
-	name := cl.ArgumentValue("name")
+func cmdGetConfig(p *program.Program) {
+	name := p.ArgumentValue("name")
 
 	value, err := app.Config.GetEntry(name)
 	if err != nil {
-		die("%v", err)
+		p.Fatal("%v", err)
 	}
 
 	fmt.Printf("%s\n", value)
 }
 
-func cmdConfigSet(args []string, app *App) {
-	cl := cmdline.New()
-	cl.AddArgument("name", "the name of the entry")
-	cl.AddArgument("value", "the value of the entry")
-	cl.Parse(args)
-
-	name := cl.ArgumentValue("name")
-	value := cl.ArgumentValue("value")
+func cmdSetConfig(p *program.Program) {
+	name := p.ArgumentValue("name")
+	value := p.ArgumentValue("value")
 
 	if err := app.Config.SetEntry(name, value); err != nil {
-		die("%v", err)
+		p.Fatal("%v", err)
 	}
 
 	if err := app.Config.Write(); err != nil {
-		die("%v", err)
+		p.Fatal("%v", err)
 	}
 }

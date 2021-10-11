@@ -6,39 +6,36 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/galdor/go-cmdline"
+	"github.com/galdor/go-program"
 )
 
-func cmdCommand(args []string, app *App) {
-	cl := cmdline.New()
-	cl.AddCommand("list", "list available commands")
-	cl.AddCommand("info", "print information about a command")
-	cl.AddCommand("execute", "execute a command")
-	cl.Parse(args)
+func addCommandCommands() {
+	var c *program.Command
 
-	var cmd func([]string, *App)
+	// list-commands
+	c = p.AddCommand("list-commands", "list available commands",
+		cmdListCommands)
 
-	switch cl.CommandName() {
-	case "list":
-		cmd = cmdCommandList
-	case "info":
-		cmd = cmdCommandInfo
-	case "execute":
-		cmd = cmdCommandExecute
-	}
+	// describe-command
+	c = p.AddCommand("describe-command", "print information about a command",
+		cmdDescribeCommand)
 
-	app.IdentifyCurrentProject()
+	c.AddArgument("name", "the name of the command")
 
-	cmd(cl.CommandNameAndArguments(), app)
+	// execute-command
+	c = p.AddCommand("execute-command", "execute a command",
+		cmdExecuteCommand)
+
+	c.AddArgument("name", "the name of the command")
+	c.AddTrailingArgument("parameter", "a parameter passed to the command")
 }
 
-func cmdCommandList(args []string, app *App) {
-	cl := cmdline.New()
-	cl.Parse(args)
+func cmdListCommands(p *program.Program) {
+	app.IdentifyCurrentProject()
 
 	projects, err := app.Client.FetchCommands()
 	if err != nil {
-		die("cannot fetch commands: %v", err)
+		p.Fatal("cannot fetch commands: %v", err)
 	}
 
 	header := []string{"name", "description"}
@@ -51,21 +48,19 @@ func cmdCommandList(args []string, app *App) {
 	table.Write()
 }
 
-func cmdCommandInfo(args []string, app *App) {
-	cl := cmdline.New()
-	cl.AddArgument("name", "the name of the command")
-	cl.Parse(args)
+func cmdDescribeCommand(p *program.Program) {
+	app.IdentifyCurrentProject()
 
-	name := cl.ArgumentValue("name")
+	name := p.ArgumentValue("name")
 
 	command, err := app.Client.FetchCommandByName(name)
 	if err != nil {
 		var apiErr *APIError
 		if errors.As(err, &apiErr) && apiErr.Code == "unknown_resource" {
-			die("unknown command %q", name)
+			p.Fatal("unknown command %q", name)
 		}
 
-		die("cannot fetch command: %v", err)
+		p.Fatal("cannot fetch command: %v", err)
 	}
 
 	commandData := command.Spec.Data.(*CommandData)
@@ -89,28 +84,25 @@ func cmdCommandInfo(args []string, app *App) {
 	}
 }
 
-func cmdCommandExecute(args []string, app *App) {
-	cl := cmdline.New()
-	cl.AddArgument("name", "the name of the command")
-	cl.AddTrailingArguments("parameter", "a parameter passed to the command")
-	cl.Parse(args)
+func cmdExecuteCommand(p *program.Program) {
+	app.IdentifyCurrentProject()
 
-	name := cl.ArgumentValue("name")
-	parameterStrings := cl.TrailingArgumentsValues("parameter")
+	name := p.ArgumentValue("name")
+	parameterStrings := p.TrailingArgumentValues("parameter")
 
 	command, err := app.Client.FetchCommandByName(name)
 	if err != nil {
 		var apiErr *APIError
 		if errors.As(err, &apiErr) && apiErr.Code == "unknown_resource" {
-			die("unknown command %q", name)
+			p.Fatal("unknown command %q", name)
 		}
 
-		die("cannot fetch command: %v", err)
+		p.Fatal("cannot fetch command: %v", err)
 	}
 
 	parameters, err := parseParameters(parameterStrings, command)
 	if err != nil {
-		die("%v", err)
+		p.Fatal("%v", err)
 	}
 
 	execution := CommandExecution{
@@ -119,16 +111,16 @@ func cmdCommandExecute(args []string, app *App) {
 
 	result, err := app.Client.ExecuteCommand(command.Id, &execution)
 	if err != nil {
-		die("cannot execute command: %v", err)
+		p.Fatal("cannot execute command: %v", err)
 	}
 
-	info("command executed")
+	p.Info("command executed")
 
 	nbPipelines := len(result.PipelineIds)
 	if nbPipelines == 1 {
-		info("1 pipeline created")
+		p.Info("1 pipeline created")
 	} else {
-		info("%d pipelines created", nbPipelines)
+		p.Info("%d pipelines created", nbPipelines)
 	}
 
 	table := NewTable([]string{"Pipeline"})

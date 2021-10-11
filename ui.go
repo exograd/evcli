@@ -30,7 +30,7 @@ func Confirm(prompt string) bool {
 	r := bufio.NewReader(os.Stdin)
 	line, _, err := r.ReadLine()
 	if err != nil {
-		die("cannot read stdin: %v", err)
+		p.Fatal("cannot read stdin: %v", err)
 	}
 
 	response := strings.ToLower(strings.TrimSpace(string(line)))

@@ -33,7 +33,7 @@ func (rs *ResourceSet) Load(dirPath string) error {
 	}
 
 	for _, filePath := range filePaths {
-		trace("loading resource file %s", filePath)
+		p.Debug(1, "loading resource file %s", filePath)
 
 		fileResources, err := LoadResourceFile(filePath)
 		if err != nil {
@@ -194,7 +194,7 @@ func LoadStepSource(step interface{}, dirPath string) error {
 
 	sourcePath := path.Join(dirPath, source)
 
-	trace("loading task step source file %s", sourcePath)
+	p.Debug(1, "loading task step source file %s", sourcePath)
 
 	data, err := ioutil.ReadFile(sourcePath)
 	if err != nil {

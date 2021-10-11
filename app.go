@@ -17,23 +17,23 @@ type App struct {
 
 func (a *App) LoadAPIKey() {
 	if key := os.Getenv("EVCLI_API_KEY"); key != "" {
-		trace("using api key from EVCLI_API_KEY environment variable")
+		p.Debug(1, "using api key from EVCLI_API_KEY environment variable")
 		a.Client.APIKey = key
 		return
 	}
 
 	if key := a.Config.API.Key; key != "" {
-		trace("using api key from configuration")
+		p.Debug(1, "using api key from configuration")
 		a.Client.APIKey = key
 		return
 	}
 
-	warn("missing or empty API key")
-	info("\nYou need to provide an API key to interact with Eventline. " +
+	p.Error("missing or empty API key")
+	p.Info("\nYou need to provide an API key to interact with Eventline. " +
 		"You can either edit the evcli configuration file or use the " +
 		"following command:")
-	info("\n\tevcli config set api.key <key>")
-	info("\nAlternatively, you can set the EVCLI_API_KEY environment " +
+	p.Info("\n\tevcli config set api.key <key>")
+	p.Info("\nAlternatively, you can set the EVCLI_API_KEY environment " +
 		"variable.")
 	os.Exit(1)
 }
@@ -41,10 +41,10 @@ func (a *App) LoadAPIKey() {
 func (a *App) IdentifyCurrentProject() {
 	id, err := a.identifyCurrentProject()
 	if err != nil {
-		die("%v", err)
+		p.Fatal("%v", err)
 	}
 
-	trace("using project %s as current project", id)
+	p.Debug(1, "using project %s as current project", id)
 
 	a.Client.ProjectId = id
 }
@@ -75,7 +75,7 @@ func (a *App) identifyCurrentProject() (string, error) {
 
 		project, err := a.Client.FetchProjectByName(name)
 		if err != nil {
-			die("cannot fetch project %q: %v", name, err)
+			p.Fatal("cannot fetch project %q: %v", name, err)
 		}
 
 		return project.Id, nil

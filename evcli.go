@@ -1,76 +1,69 @@
 package main
 
 import (
-	"fmt"
-	"os"
-
-	"github.com/galdor/go-cmdline"
+	"github.com/galdor/go-program"
 )
 
 var (
+	p   *program.Program
+	app *App
+
 	buildId string
 
-	verbose           bool
-	quiet             bool
 	skipConfirmations bool
-
-	colorOutput bool
+	colorOutput       bool
 )
 
 func main() {
 	// Command line
-	cl := cmdline.New()
+	p = program.NewProgram("evcli", "client for the eventline service")
 
-	cl.AddFlag("v", "verbose", "print debug messages")
-	cl.AddFlag("q", "quiet", "do not print status and information messages")
-	cl.AddFlag("y", "yes", "skip all confirmations")
-	cl.AddFlag("", "no-color", "do not use colors")
+	p.AddFlag("y", "yes", "skip all confirmations")
+	p.AddFlag("", "no-color", "do not use colors")
 
-	cl.AddOption("", "project-path", "path",
+	p.AddOption("", "project-path", "path", "",
 		"the path of the current project")
-	cl.AddOption("", "project-id", "id",
+	p.AddOption("", "project-id", "id", "",
 		"the identifier of the current project")
-	cl.AddOption("p", "project-name", "name",
+	p.AddOption("p", "project-name", "name", "",
 		"the name of the current project")
 
-	cl.AddCommand("api", "interact with the eventline api")
-	cl.AddCommand("config", "interact with the evcli configuration")
-	cl.AddCommand("project", "manipulate projects")
-	cl.AddCommand("command", "manipulate commands")
-	cl.AddCommand("pipeline", "manipulate pipelines")
-	cl.AddCommand("event", "manipulate events")
-	cl.AddCommand("version", "print the version of evcli and exit")
+	addConfigCommands()
+	addProjectCommands()
+	addCommandCommands()
+	addPipelineCommands()
+	addEventCommands()
 
-	cl.Parse(os.Args)
+	p.AddCommand("version", "print the version of evcli and exit", cmdCreateEvent)
+
+	p.ParseCommandLine()
 
 	// Config
-	verbose = cl.IsOptionSet("verbose")
-	quiet = cl.IsOptionSet("quiet")
-	skipConfirmations = cl.IsOptionSet("yes")
+	skipConfirmations = p.IsOptionSet("yes")
 
 	config, err := LoadConfig()
 	if err != nil {
-		die("cannot load configuration: %v", err)
+		p.Fatal("cannot load configuration: %v", err)
 	}
 
-	colorOutput = config.Interface.Color && !cl.IsOptionSet("no-color")
+	colorOutput = config.Interface.Color && !p.IsOptionSet("no-color")
 
 	// Application
 	client, err := NewClient(config)
 	if err != nil {
-		die("cannot create api client: %v", err)
+		p.Fatal("cannot create api client: %v", err)
 	}
 
 	optionValue := func(name string) *string {
-		if !cl.IsOptionSet(name) {
+		if !p.IsOptionSet(name) {
 			return nil
 		}
 
-		value := cl.OptionValue(name)
+		value := p.OptionValue(name)
 		return &value
 	}
 
-	app := &App{
+	app = &App{
 		Config: config,
 		Client: client,
 
@@ -79,56 +72,9 @@ func main() {
 		projectNameOption: optionValue("project-name"),
 	}
 
-	if cmdName := cl.CommandName(); cmdName != "config" {
+	if name := p.CommandName(); name != "config" {
 		app.LoadAPIKey()
 	}
 
-	// Commands
-	var cmd func([]string, *App)
-
-	switch cl.CommandName() {
-	case "api":
-		cmd = cmdAPI
-	case "config":
-		cmd = cmdConfig
-	case "project":
-		cmd = cmdProject
-	case "command":
-		cmd = cmdCommand
-	case "pipeline":
-		cmd = cmdPipeline
-	case "event":
-		cmd = cmdEvent
-	case "version":
-		cmd = cmdVersion
-	}
-
-	// Main
-	cmd(cl.CommandNameAndArguments(), app)
-}
-
-func trace(format string, args ...interface{}) {
-	if !verbose {
-		return
-	}
-
-	fmt.Fprintf(os.Stderr, format+"\n", args...)
-}
-
-func info(format string, args ...interface{}) {
-	if quiet {
-		return
-	}
-
-	fmt.Fprintf(os.Stderr, format+"\n", args...)
-}
-
-func warn(format string, args ...interface{}) {
-	msg := fmt.Sprintf("Error: "+format+".", args...)
-	fmt.Fprintf(os.Stderr, "%s\n", Colorize(ColorRed, msg))
-}
-
-func die(format string, args ...interface{}) {
-	warn(format, args...)
-	os.Exit(1)
+	p.Run()
 }

@@ -3,12 +3,9 @@ package main
 import (
 	"fmt"
 
-	"github.com/galdor/go-cmdline"
+	"github.com/galdor/go-program"
 )
 
-func cmdVersion(args []string, app *App) {
-	cl := cmdline.New()
-	cl.Parse(args)
-
+func cmdVersion(p *program.Program) {
 	fmt.Printf("evcli %s\n", buildId)
 }

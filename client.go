@@ -87,7 +87,7 @@ func (c *Client) SendRequest(method string, relURI *url.URL, body, dest interfac
 			return &apiErr
 		}
 
-		trace("cannot decode response body: %v", err)
+		p.Debug(1, "cannot decode response body: %v", err)
 
 		return fmt.Errorf("request failed with status %d: %s",
 			res.StatusCode, string(resBody))
@@ -293,7 +293,7 @@ func (rt *RoundTripper) RoundTrip(req *http.Request) (*http.Response, error) {
 		statusString = strconv.Itoa(res.StatusCode)
 	}
 
-	trace("%s %s %s %s", req.Method, req.URL.String(), statusString,
+	p.Debug(2, "%s %s %s %s", req.Method, req.URL.String(), statusString,
 		FormatRequestDuration(d))
 	return res, err
 }

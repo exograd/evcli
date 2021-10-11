@@ -1,7 +1,5 @@
-github.com/galdor/go-cmdline v1.1.1 h1:+mvSjZo4ZNterLC8Ft4zt9J5TgXJPfnoHZbTy1hYEUA=
-github.com/galdor/go-cmdline v1.1.1/go.mod h1:4F4ylJ9bgyWjcqjGgFYPoDCeKlGSCllihrWoHnQ9eHU=
-github.com/galdor/go-cmdline v1.1.2-0.20210629140542-11e0707a838f h1:4TK7U8UoTfvNM8UXd+25sBi7HfBFvX6kwOuidXSo+DU=
-github.com/galdor/go-cmdline v1.1.2-0.20210629140542-11e0707a838f/go.mod h1:1LVwXCqiarskUYLWZGpJTi46GCCCudwHs76VnUV0Qs0=
+github.com/galdor/go-program v0.0.0-20211011141318-30442d87a6c5 h1:uzzHO8QYesi/YDnZ7D1EV8CfymzA/bGSZXvEGmldWOg=
+github.com/galdor/go-program v0.0.0-20211011141318-30442d87a6c5/go.mod h1:C9pMRnGUFaQxLcoNnTu5vVagE32nd613Qr45wB0lwO8=
 github.com/qri-io/jsonpointer v0.1.1 h1:prVZBZLL6TW5vsSB9fFHFAMBLI4b0ri5vribQlTJiBA=
 github.com/qri-io/jsonpointer v0.1.1/go.mod h1:DnJPaYgiKu56EuDp8TU5wFLdZIcAnb/uH9v37ZaMV64=
 gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405 h1:yhCVgyC4o1eVCa2tZl7eS0r+SDo693bJlVdllGtEeKM=
