@@ -18,6 +18,14 @@ func addProjectCommands() {
 	c = p.AddCommand("list-projects", "list projects",
 		cmdListProjects)
 
+	// initialize-project
+	c = p.AddCommand("initialize-project",
+		"initialize a directory for an existing project",
+		cmdInitializeProject)
+
+	c.AddArgument("name", "the name of the project")
+	c.AddArgument("path", "the directory which will contain project data")
+
 	// create-project
 	c = p.AddCommand("create-project", "create a new project",
 		cmdCreateProject)
@@ -55,6 +63,31 @@ func cmdListProjects(p *program.Program) {
 	table.Write()
 }
 
+func cmdInitializeProject(p *program.Program) {
+	name := p.ArgumentValue("name")
+	dirPath := p.ArgumentValue("path")
+
+	var projectFile ProjectFile
+	if err := projectFile.Read(dirPath); err == nil {
+		p.Fatal("directory %s already contains a project file for "+
+			"project %q", dirPath, projectFile.Name)
+	}
+
+	project, err := app.Client.FetchProjectByName(name)
+	if err != nil {
+		p.Fatal("cannot fetch project %q: %v", name, err)
+	}
+
+	projectFile.Name = name
+	projectFile.Id = project.Id
+
+	if err := projectFile.Write(dirPath); err != nil {
+		p.Fatal("cannot write project file in %s: %v", dirPath, err)
+	}
+
+	p.Info("project %s initialized", project.Name)
+}
+
 func cmdCreateProject(p *program.Program) {
 	name := p.ArgumentValue("name")
 	dirPath := p.ArgumentValue("path")
@@ -90,7 +123,7 @@ func cmdCreateProject(p *program.Program) {
 		p.Fatal("cannot write project file in %s: %v", dirPath, err)
 	}
 
-	p.Info("project %s created", project.Id)
+	p.Info("project %q created", project.Name)
 }
 
 func cmdDeleteProject(p *program.Program) {
