@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -34,7 +35,12 @@ func LoadConfig() (*Config, error) {
 
 	p.Debug(1, "loading configuration from %s", filePath)
 
-	if err := config.LoadFile(filePath); err != nil {
+	err := config.LoadFile(filePath)
+	if errors.Is(err, os.ErrNotExist) {
+		if err := config.Write(); err != nil {
+			return nil, err
+		}
+	} else if err != nil {
 		return nil, fmt.Errorf("cannot load %q: %w", filePath, err)
 	}
 
@@ -76,7 +82,9 @@ func DefaultConfig() *Config {
 
 func (c *Config) CheckPermissions(filePath string) error {
 	info, err := os.Stat(filePath)
-	if err != nil {
+	if errors.Is(err, os.ErrNotExist) {
+		return nil
+	} else if err != nil {
 		return fmt.Errorf("cannot stat %q: %w", filePath, err)
 	}
 
