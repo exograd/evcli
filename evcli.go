@@ -34,7 +34,7 @@ func main() {
 	addPipelineCommands()
 	addEventCommands()
 
-	p.AddCommand("version", "print the version of evcli and exit", cmdCreateEvent)
+	p.AddCommand("version", "print the version of evcli and exit", cmdVersion)
 
 	p.ParseCommandLine()
 
