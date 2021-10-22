@@ -28,6 +28,10 @@ func LoadConfig() (*Config, error) {
 
 	filePath := ConfigPath()
 
+	if err := config.CheckPermissions(filePath); err != nil {
+		return nil, err
+	}
+
 	p.Debug(1, "loading configuration from %s", filePath)
 
 	if err := config.LoadFile(filePath); err != nil {
@@ -68,6 +72,30 @@ func DefaultConfig() *Config {
 			Endpoint: "https://api.eventline.net",
 		},
 	}
+}
+
+func (c *Config) CheckPermissions(filePath string) error {
+	info, err := os.Stat(filePath)
+	if err != nil {
+		return fmt.Errorf("cannot stat %q: %w", filePath, err)
+	}
+
+	mode := uint32(info.Mode().Perm())
+
+	//   8   7   6   5   4   3   2   1   0
+	// +---+---+---+---+---+---+---+---+---+
+	// | UR| UW| UX| GR| GW| GX| OR| OW| OX|
+	// +---+---+---+---+---+---+---+---+---+
+
+	if (mode & (1 << 2)) != 0 {
+		return fmt.Errorf("%q must not be world readable", filePath)
+	}
+
+	if (mode & (1 << 5)) != 0 {
+		return fmt.Errorf("%q must not be group readable", filePath)
+	}
+
+	return nil
 }
 
 func (c *Config) LoadFile(filePath string) error {
