@@ -161,6 +161,10 @@ func cmdDeployProject(p *program.Program) {
 		p.Fatal("cannot load resources: %v", err)
 	}
 
+	if len(resourceSet.Resources) == 0 {
+		p.Fatal("no resource available")
+	}
+
 	err := app.Client.DeployProject(projectFile.Id, &resourceSet)
 	if err != nil {
 		var apiErr *APIError
