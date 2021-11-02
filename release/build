@@ -9,7 +9,7 @@ build_dir=$root/release/evcli
 rm -rf $build_dir
 mkdir -p $build_dir
 
-touch $build_dir/checksums.txt
+touch $build_dir/evcli-checksums.txt
 
 build() {
     local os arch hash name
@@ -25,7 +25,7 @@ build() {
     hash=$(<evcli openssl dgst -sha256 | cut -d ' ' -f 2)
 
     mv evcli $build_dir/$name
-    echo "$hash $name" >>$build_dir/checksums.txt
+    echo "$hash $name" >>$build_dir/evcli-checksums.txt
 }
 
 build linux amd64
