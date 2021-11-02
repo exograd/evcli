@@ -169,20 +169,13 @@ func LoadTaskSource(spec interface{}, dirPath string) error {
 	return nil
 }
 
-func LoadStepSource(step interface{}, dirPath string) error {
-	ptr, _ := jsonpointer.Parse("/run")
-
-	runValue, err := ptr.Eval(step)
-	if err != nil {
-		return nil
-	}
-
-	run, ok := runValue.(map[string]interface{})
+func LoadStepSource(stepValue interface{}, dirPath string) error {
+	step, ok := stepValue.(map[string]interface{})
 	if !ok {
 		return nil
 	}
 
-	sourceValue, found := run["source"]
+	sourceValue, found := step["source"]
 	if !found {
 		return nil
 	}
@@ -201,7 +194,7 @@ func LoadStepSource(step interface{}, dirPath string) error {
 		return fmt.Errorf("cannot read file %s: %w", sourcePath, err)
 	}
 
-	run["code"] = string(data)
+	step["code"] = string(data)
 
 	return nil
 }
