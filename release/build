@@ -1,0 +1,34 @@
+#!/bin/sh
+
+set -eu
+
+root=$(realpath $(dirname "$0")/..)
+
+build_dir=$root/release/evcli
+
+rm -rf $build_dir
+mkdir -p $build_dir
+
+touch $build_dir/checksums.txt
+
+build() {
+    local os arch hash name
+
+    os=$1
+    arch=$2
+
+    echo "building $os/$arch"
+
+    GOOS=$os GOARCH=$arch make build
+
+    name=evcli-$os-$arch
+    hash=$(<evcli openssl dgst -sha256 | cut -d ' ' -f 2)
+
+    mv evcli $build_dir/$name
+    echo "$hash $name" >>$build_dir/checksums.txt
+}
+
+build linux amd64
+build darwin arm64
+build darwin amd64
+build freebsd amd64
