@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path"
+	"path/filepath"
 )
 
 type Config struct {
@@ -51,6 +52,11 @@ func (c *Config) Write() error {
 	filePath := ConfigPath()
 
 	p.Debug(1, "writing configuration to %s", filePath)
+
+	dirPath := filepath.Dir(filePath)
+	if err := os.MkdirAll(dirPath, 0700); err != nil {
+		return fmt.Errorf("cannot create directory %s: %w", dirPath, err)
+	}
 
 	return c.WriteFile(filePath)
 }
