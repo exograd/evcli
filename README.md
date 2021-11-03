@@ -2,6 +2,15 @@
 This repository contains a command line tool to interact with the [Eventline
 platform](https://eventline.net).
 
+# Installation
+The fastest way to install evcli is to use the installation script:
+
+```sh
+curl -sSLf https://github.com/exograd/evcli/releases/latest/download/install-evcli | sh -
+```
+
+See the documentation for more information.
+
 # Documentation
 The documentation is available on the [Eventline documentation
 website](https://doc.eventline.net/tools/evcli).

@@ -9,6 +9,7 @@ build_dir=$root/release/evcli
 rm -rf $build_dir
 mkdir -p $build_dir
 
+cp $root/utils/install $build_dir/evcli-install
 touch $build_dir/evcli-checksums.txt
 
 build() {
