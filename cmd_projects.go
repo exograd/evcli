@@ -45,6 +45,7 @@ func addProjectCommands() {
 
 	c.AddOption("d", "directory", "path", ".",
 		"the directory containing project data")
+	c.AddFlag("n", "dry-run", "validate resources but do not deploy them")
 }
 
 func cmdListProjects(p *program.Program) {
@@ -148,6 +149,7 @@ func cmdDeleteProject(p *program.Program) {
 
 func cmdDeployProject(p *program.Program) {
 	dirPath := p.OptionValue("directory")
+	dryRun := p.IsOptionSet("dry-run")
 
 	var projectFile ProjectFile
 	if err := projectFile.Read(dirPath); err != nil {
@@ -165,7 +167,7 @@ func cmdDeployProject(p *program.Program) {
 		p.Fatal("no resource available")
 	}
 
-	err := app.Client.DeployProject(projectFile.Id, &resourceSet)
+	err := app.Client.DeployProject(projectFile.Id, &resourceSet, dryRun)
 	if err != nil {
 		var apiErr *APIError
 		if errors.As(err, &apiErr) && apiErr.Code == "invalid_request_body" {
@@ -175,7 +177,17 @@ func cmdDeployProject(p *program.Program) {
 					&resourceSet))
 		}
 
-		p.Fatal("cannot deploy project: %v", err)
+		if dryRun {
+			p.Fatal("invalid project: %v", err)
+		} else {
+			p.Fatal("cannot deploy project: %v", err)
+		}
+	}
+
+	if dryRun {
+		p.Info("project validated successfully")
+	} else {
+		p.Info("project deployed successfully")
 	}
 }
 

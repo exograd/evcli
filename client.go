@@ -146,9 +146,15 @@ func (c *Client) DeleteProject(id string) error {
 	return c.SendRequest("DELETE", &uri, nil, nil)
 }
 
-func (c *Client) DeployProject(id string, rs *ResourceSet) error {
+func (c *Client) DeployProject(id string, rs *ResourceSet, dryRun bool) error {
+	query := url.Values{}
+	if dryRun {
+		query.Add("dry-run", "")
+	}
+
 	uri := url.URL{
-		Path: "/v0/projects/id/" + id + "/resources",
+		Path:     "/v0/projects/id/" + id + "/resources",
+		RawQuery: query.Encode(),
 	}
 
 	return c.SendRequest("PUT", &uri, rs, nil)
