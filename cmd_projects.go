@@ -220,15 +220,23 @@ func formatInvalidRequestBodyError(err InvalidRequestBodyError, resourceSet *Res
 		resource := resourceSet.Resources[document]
 		resourcePtr := ptr[2:]
 
+		documentId := fmt.Sprintf("document %d", document)
+
 		var message string
+
 		if len(resourcePtr) == 0 {
 			message = jsvError.Reason
 		} else {
 			message = resourcePtr.String() + ": " + jsvError.Reason
+
+			typeName, name := resource.TypeAndName()
+			if typeName != "" && name != "" {
+				documentId = fmt.Sprintf("%s %q", typeName, name)
+			}
 		}
 
-		fmt.Fprintf(&buf, "%s: invalid document %d: %s",
-			resource.Path, document, message)
+		fmt.Fprintf(&buf, "%s: invalid %s: %s",
+			resource.Path, documentId, message)
 	}
 
 	return buf.String()

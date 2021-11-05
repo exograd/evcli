@@ -198,3 +198,24 @@ func LoadStepSource(stepValue interface{}, dirPath string) error {
 
 	return nil
 }
+
+func (rf *ResourceFile) TypeAndName() (typeName string, name string) {
+	value, ok := rf.Value.(map[string]interface{})
+	if !ok {
+		return "", ""
+	}
+
+	if sv, found := value["type"]; found {
+		if s, ok := sv.(string); ok {
+			typeName = s
+		}
+	}
+
+	if sv, found := value["name"]; found {
+		if s, ok := sv.(string); ok {
+			name = s
+		}
+	}
+
+	return
+}
