@@ -10,7 +10,7 @@ build: FORCE
 	CGO_ENABLED=0 go build -ldflags "$(LDFLAGS)" -o $(BIN)
 
 test:
-	go test -race ./..
+	go test -race ./...
 
 clean:
 	$(RM) $(BIN)
