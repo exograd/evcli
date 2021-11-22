@@ -32,7 +32,7 @@ func (a *App) LoadAPIKey() {
 	p.Info("\nYou need to provide an API key to interact with Eventline. " +
 		"You can either edit the evcli configuration file or use the " +
 		"following command:")
-	p.Info("\n\tevcli config set api.key <key>")
+	p.Info("\n\tevcli set-config api.key <key>")
 	p.Info("\nAlternatively, you can set the EVCLI_API_KEY environment " +
 		"variable.")
 	os.Exit(1)

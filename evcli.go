@@ -72,7 +72,9 @@ func main() {
 		projectNameOption: optionValue("project-name"),
 	}
 
-	if name := p.CommandName(); name != "config" && name != "version" {
+	name := p.CommandName()
+	if name != "set-config" && name != "show-config" &&
+		name != "get-config" && name != "version" {
 		app.LoadAPIKey()
 	}
 
