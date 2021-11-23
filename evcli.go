@@ -29,6 +29,7 @@ func main() {
 		"the name of the current project")
 
 	addConfigCommands()
+	addUpdateCommand()
 	addProjectCommands()
 	addCommandCommands()
 	addPipelineCommands()
