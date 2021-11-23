@@ -12,7 +12,7 @@ See the documentation for more information.
 
 # Documentation
 The documentation is available on the [Eventline documentation
-website](https://doc.eventline.net/tools/evcli).
+website](https://docs.eventline.net/tools/evcli).
 
 # Contact
 If you find a bug or have any question, feel free to open a GitHub issue or to
