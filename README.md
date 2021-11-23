@@ -1,6 +1,6 @@
 # Project
 This repository contains a command line tool to interact with the [Eventline
-platform](https://eventline.net).
+platform](https://www.eventline.net).
 
 # Installation
 The fastest way to install evcli is to use the installation script:
