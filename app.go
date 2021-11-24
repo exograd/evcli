@@ -219,7 +219,7 @@ func (a *App) loadLastBuildIdCheckDate() (*time.Time, error) {
 
 	i, err := strconv.ParseInt(string(data), 10, 64)
 	if err != nil {
-		return nil, fmt.Errorf("%s: invalid data")
+		return nil, fmt.Errorf("%s: invalid data", filePath)
 	}
 
 	t := time.Unix(i, 0)
