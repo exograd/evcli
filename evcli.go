@@ -99,6 +99,7 @@ func noAPIKeyCommands() []string {
 		"get-config",
 		"set-config",
 		"show-config",
+		"update",
 		"version",
 	}
 }
