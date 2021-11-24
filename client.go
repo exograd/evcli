@@ -9,7 +9,6 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
-	"time"
 )
 
 type Client struct {
@@ -22,10 +21,7 @@ type Client struct {
 }
 
 func NewClient(config *Config) (*Client, error) {
-	httpClient := &http.Client{
-		Timeout:   30 * time.Second,
-		Transport: NewRoundTripper(http.DefaultTransport),
-	}
+	httpClient := NewHTTPClient()
 
 	baseURI, err := url.Parse(config.API.Endpoint)
 	if err != nil {
@@ -275,46 +271,4 @@ func (c *Client) CreateEvent(newEvent *NewEvent) (Events, error) {
 	}
 
 	return events, nil
-}
-
-type RoundTripper struct {
-	http.RoundTripper
-}
-
-func NewRoundTripper(rt http.RoundTripper) *RoundTripper {
-	return &RoundTripper{
-		RoundTripper: rt,
-	}
-}
-
-func (rt *RoundTripper) RoundTrip(req *http.Request) (*http.Response, error) {
-	start := time.Now()
-	res, err := rt.RoundTripper.RoundTrip(req)
-	d := time.Now().Sub(start)
-
-	var statusString string
-	if res == nil {
-		statusString = "-"
-	} else {
-		statusString = strconv.Itoa(res.StatusCode)
-	}
-
-	p.Debug(2, "%s %s %s %s", req.Method, req.URL.String(), statusString,
-		FormatRequestDuration(d))
-	return res, err
-}
-
-func FormatRequestDuration(d time.Duration) string {
-	s := d.Seconds()
-
-	switch {
-	case s < 0.001:
-		return fmt.Sprintf("%dμs", d.Microseconds())
-
-	case s < 1.0:
-		return fmt.Sprintf("%dms", d.Milliseconds())
-
-	default:
-		return fmt.Sprintf("%.1fs", s)
-	}
 }

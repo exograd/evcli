@@ -34,6 +34,8 @@ func findNewBuild() (*program.BuildId, error) {
 	var currentBuildId program.BuildId
 	currentBuildId.Parse(buildId)
 
+	p.Debug(1, "current build id: %v", currentBuildId)
+
 	lastBuildId, err := lastBuildId()
 	if err != nil {
 		return nil, fmt.Errorf("cannot retrieve last build id: %w", err)
@@ -41,8 +43,7 @@ func findNewBuild() (*program.BuildId, error) {
 		return nil, nil
 	}
 
-	p.Info("current build id: %v", currentBuildId)
-	p.Info("last build id: %v", lastBuildId)
+	p.Debug(1, "last build id: %v", lastBuildId)
 
 	if lastBuildId.LowerThanOrEqualTo(currentBuildId) {
 		return nil, nil
@@ -52,7 +53,8 @@ func findNewBuild() (*program.BuildId, error) {
 }
 
 func lastBuildId() (*program.BuildId, error) {
-	client := github.NewClient(nil)
+	httpClient := NewHTTPClient()
+	client := github.NewClient(httpClient)
 
 	ctx := context.Background()
 
