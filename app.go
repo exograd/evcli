@@ -253,5 +253,5 @@ func (a *App) configPath() string {
 		return path
 	}
 
-	return path.Join(a.HomePath, ".evcli", "config.json")
+	return path.Join(a.HomePath, ".config", "evcli", "config.json")
 }
