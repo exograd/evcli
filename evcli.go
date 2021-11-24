@@ -89,7 +89,9 @@ func main() {
 		app.LoadAPIKey()
 	}
 
-	app.LookForLastBuild()
+	if name != "update" {
+		app.LookForLastBuild()
+	}
 
 	p.Run()
 }
