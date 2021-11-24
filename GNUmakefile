@@ -12,9 +12,12 @@ build: FORCE
 test:
 	go test -race ./...
 
+vet:
+	go vet ./...
+
 clean:
 	$(RM) $(BIN)
 
 FORCE:
 
-.PHONY: all build test clean
+.PHONY: all build test vet clean
