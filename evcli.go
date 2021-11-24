@@ -64,16 +64,14 @@ func main() {
 		return &value
 	}
 
-	app = &App{
-		Config: config,
-		Client: client,
-
-		HTTPClient: NewHTTPClient(),
-
-		projectPathOption: optionValue("project-path"),
-		projectIdOption:   optionValue("project-id"),
-		projectNameOption: optionValue("project-name"),
+	app, err = NewApp(config, client)
+	if err != nil {
+		p.Fatal("%v", err)
 	}
+
+	app.projectPathOption = optionValue("project-path")
+	app.projectIdOption = optionValue("project-id")
+	app.projectNameOption = optionValue("project-name")
 
 	name := p.CommandName()
 

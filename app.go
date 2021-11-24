@@ -4,8 +4,13 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"os"
+	"path"
+	"path/filepath"
+	"strconv"
+	"time"
 
 	"github.com/galdor/go-program"
 	"github.com/google/go-github/v40/github"
@@ -17,9 +22,28 @@ type App struct {
 
 	HTTPClient *http.Client
 
+	HomePath string
+
 	projectPathOption *string
 	projectIdOption   *string
 	projectNameOption *string
+}
+
+func NewApp(config *Config, client *Client) (*App, error) {
+	a := &App{
+		Config: config,
+		Client: client,
+
+		HTTPClient: NewHTTPClient(),
+	}
+
+	homePath, err := os.UserHomeDir()
+	if err != nil {
+		return nil, fmt.Errorf("cannot locate user home directory: %w", err)
+	}
+	a.HomePath = homePath
+
+	return a, nil
 }
 
 func (a *App) LoadAPIKey() {
@@ -105,10 +129,25 @@ func (a *App) loadProjectDirectory(dirPath string) (string, error) {
 }
 
 func (a *App) LookForLastBuild() {
+	lastCheck, err := a.loadLastBuildIdCheckDate()
+	if err != nil {
+		p.Error("cannot look for last build: %v", err)
+	}
+
+	now := time.Now()
+
+	if lastCheck != nil && now.Sub(*lastCheck) < 24*time.Hour {
+		return
+	}
+
 	lastBuildId, err := a.lookForLastBuild()
 	if err != nil {
 		p.Error("cannot find last build: %v", err)
 		return
+	}
+
+	if err := a.updateLastBuildIdCheckDate(now); err != nil {
+		p.Error("cannot update last build check date: %v", err)
 	}
 
 	if lastBuildId == nil {
@@ -164,4 +203,55 @@ func (a *App) lastBuildId() (*program.BuildId, error) {
 	}
 
 	return &buildId, nil
+}
+
+func (a *App) loadLastBuildIdCheckDate() (*time.Time, error) {
+	filePath := a.lastBuildIdCheckPath()
+
+	data, err := ioutil.ReadFile(filePath)
+	if err != nil {
+		if errors.Is(err, os.ErrNotExist) {
+			return nil, nil
+		}
+
+		return nil, fmt.Errorf("cannot read %s: %w", filePath, err)
+	}
+
+	i, err := strconv.ParseInt(string(data), 10, 64)
+	if err != nil {
+		return nil, fmt.Errorf("%s: invalid data")
+	}
+
+	t := time.Unix(i, 0)
+
+	return &t, nil
+}
+
+func (a *App) updateLastBuildIdCheckDate(t time.Time) error {
+	filePath := a.lastBuildIdCheckPath()
+
+	data := []byte(strconv.FormatInt(t.Unix(), 10))
+
+	dirPath := filepath.Dir(filePath)
+	if err := os.MkdirAll(dirPath, 0700); err != nil {
+		return fmt.Errorf("cannot create directory %s: %w", dirPath, err)
+	}
+
+	if err := ioutil.WriteFile(filePath, data, 0600); err != nil {
+		return fmt.Errorf("cannot write %s: %w", filePath, err)
+	}
+
+	return nil
+}
+
+func (a *App) lastBuildIdCheckPath() string {
+	return path.Join(a.HomePath, ".cache", "evcli", "last-build-id-check")
+}
+
+func (a *App) configPath() string {
+	if path := os.Getenv("EVCLI_CONFIG_PATH"); path != "" {
+		return path
+	}
+
+	return path.Join(a.HomePath, ".evcli", "config.json")
 }
