@@ -11,30 +11,49 @@ import (
 )
 
 func addUpdateCommand() {
+	var c *program.Command
+
 	// update
-	p.AddCommand("update", "update the evcli program",
+	c = p.AddCommand("update", "update the evcli program",
 		cmdUpdate)
+
+	c.AddOption("i", "build-id", "build-id", "",
+		"force the version to update to")
 }
 
 func cmdUpdate(p *program.Program) {
-	// Check for a new build
-	newBuildId, err := findNewBuildId()
-	if err != nil {
-		p.Fatal("cannot find new evcli build: %v", err)
+	var buildId *program.BuildId
+
+	if p.IsOptionSet("build-id") {
+		s := p.OptionValue("build-id")
+		buildId = new(program.BuildId)
+
+		if err := buildId.Parse(s); err != nil {
+			p.Fatal("invalid build id %q: %v", s, err)
+		}
 	}
 
-	if newBuildId == nil {
-		p.Info("evcli is up-to-date")
-		return
+	if buildId == nil {
+		newBuildId, err := findNewBuildId()
+		if err != nil {
+			p.Fatal("cannot find new evcli build: %v", err)
+		}
+
+		if newBuildId == nil {
+			p.Info("evcli is up-to-date")
+			return
+		}
+
+		buildId = newBuildId
 	}
 
-	p.Info("updating to evcli %v", newBuildId)
+	p.Info("updating to evcli %v", buildId)
 
 	// Locate the URI of the evcli binary for the current platform
 	os := runtime.GOOS
 	arch := runtime.GOARCH
 
-	buildURL, err := findBuildURI(newBuildId, os, arch)
+	buildURL, err := findBuildURI(buildId, os, arch)
 	if err != nil {
 		p.Fatal("cannot find build uri: %v", err)
 	}
