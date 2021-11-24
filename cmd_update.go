@@ -61,20 +61,11 @@ func lastBuildId() (*program.BuildId, error) {
 	org := "exograd"
 	repo := "evcli"
 
-	opts := &github.ListOptions{
-		PerPage: 1,
-	}
-
-	releases, _, err := client.Repositories.ListReleases(ctx, org, repo, opts)
+	release, _, err := client.Repositories.GetLatestRelease(ctx, org, repo)
 	if err != nil {
-		return nil, fmt.Errorf("cannot list releases: %w", err)
+		return nil, fmt.Errorf("cannot retrieve latest release: %w", err)
 	}
 
-	if len(releases) == 0 {
-		return nil, nil
-	}
-
-	release := releases[0]
 	tagName := release.GetTagName()
 
 	var buildId program.BuildId
