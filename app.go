@@ -254,11 +254,3 @@ func (a *App) updateLastBuildIdCheckDate(t time.Time) error {
 func (a *App) lastBuildIdCheckPath() string {
 	return path.Join(a.HomePath, ".cache", "evcli", "last-build-id-check")
 }
-
-func (a *App) configPath() string {
-	if path := os.Getenv("EVCLI_CONFIG_PATH"); path != "" {
-		return path
-	}
-
-	return path.Join(a.HomePath, ".config", "evcli", "config.json")
-}
