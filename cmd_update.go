@@ -27,21 +27,21 @@ func addUpdateCommand() {
 
 func cmdUpdate(p *program.Program) {
 	// Determinate the identifier of the build to download and install
-	var buildId *program.BuildId
+	var targetBuildId *program.BuildId
 
 	if p.IsOptionSet("build-id") {
 		s := p.OptionValue("build-id")
-		buildId = new(program.BuildId)
+		targetBuildId = new(program.BuildId)
 
-		if err := buildId.Parse(s); err != nil {
+		if err := targetBuildId.Parse(s); err != nil {
 			p.Fatal("invalid build id %q: %v", s, err)
 		}
 	}
 
-	if buildId == nil {
-		newBuildId, err := findNewBuildId()
+	if targetBuildId == nil {
+		newBuildId, err := app.lookForLastBuild()
 		if err != nil {
-			p.Fatal("cannot find new evcli build: %v", err)
+			p.Fatal("cannot find last evcli build: %v", err)
 		}
 
 		if newBuildId == nil {
@@ -49,16 +49,16 @@ func cmdUpdate(p *program.Program) {
 			return
 		}
 
-		buildId = newBuildId
+		targetBuildId = newBuildId
 	}
 
-	p.Info("updating to evcli %v", buildId)
+	p.Info("updating evcli from %v to %v", app.currentBuildId(), targetBuildId)
 
 	// Find the URI of the evcli binary for the current platform
 	osName := runtime.GOOS
 	archName := runtime.GOARCH
 
-	buildURI, err := findBuildURI(buildId, osName, archName)
+	buildURI, err := findBuildURI(targetBuildId, osName, archName)
 	if err != nil {
 		p.Fatal("cannot find build uri: %v", err)
 	}
@@ -91,52 +91,6 @@ func cmdUpdate(p *program.Program) {
 	}
 
 	p.Info("evcli updated")
-}
-
-func findNewBuildId() (*program.BuildId, error) {
-	var currentBuildId program.BuildId
-	currentBuildId.Parse(buildId)
-
-	p.Debug(1, "current build id: %v", currentBuildId)
-
-	lastBuildId, err := lastBuildId()
-	if err != nil {
-		return nil, fmt.Errorf("cannot retrieve last build id: %w", err)
-	} else if lastBuildId == nil {
-		return nil, nil
-	}
-
-	p.Debug(1, "last build id: %v", lastBuildId)
-
-	if lastBuildId.LowerThanOrEqualTo(currentBuildId) {
-		return nil, nil
-	}
-
-	return lastBuildId, nil
-}
-
-func lastBuildId() (*program.BuildId, error) {
-	httpClient := app.HTTPClient
-	client := github.NewClient(httpClient)
-
-	ctx := context.Background()
-
-	org := "exograd"
-	repo := "evcli"
-
-	release, _, err := client.Repositories.GetLatestRelease(ctx, org, repo)
-	if err != nil {
-		return nil, fmt.Errorf("cannot fetch latest release: %w", err)
-	}
-
-	tagName := release.GetTagName()
-
-	var buildId program.BuildId
-	if err := buildId.Parse(tagName); err != nil {
-		return nil, fmt.Errorf("invalid build id %q: %w", tagName, err)
-	}
-
-	return &buildId, nil
 }
 
 func findBuildURI(id *program.BuildId, osName, archName string) (string, error) {

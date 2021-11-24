@@ -89,6 +89,8 @@ func main() {
 		app.LoadAPIKey()
 	}
 
+	app.LookForLastBuild()
+
 	p.Run()
 }
 
