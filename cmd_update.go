@@ -101,7 +101,7 @@ func findNewBuildId() (*program.BuildId, error) {
 }
 
 func lastBuildId() (*program.BuildId, error) {
-	httpClient := NewHTTPClient()
+	httpClient := app.HTTPClient
 	client := github.NewClient(httpClient)
 
 	ctx := context.Background()
@@ -125,8 +125,7 @@ func lastBuildId() (*program.BuildId, error) {
 }
 
 func findBuildURI(id *program.BuildId, osName, archName string) (string, error) {
-	httpClient := NewHTTPClient()
-	client := github.NewClient(httpClient)
+	client := github.NewClient(app.HTTPClient)
 
 	ctx := context.Background()
 

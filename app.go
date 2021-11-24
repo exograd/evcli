@@ -3,12 +3,15 @@ package main
 import (
 	"errors"
 	"fmt"
+	"net/http"
 	"os"
 )
 
 type App struct {
 	Config *Config
 	Client *Client
+
+	HTTPClient *http.Client
 
 	projectPathOption *string
 	projectIdOption   *string

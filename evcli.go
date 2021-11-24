@@ -68,6 +68,8 @@ func main() {
 		Config: config,
 		Client: client,
 
+		HTTPClient: NewHTTPClient(),
+
 		projectPathOption: optionValue("project-path"),
 		projectIdOption:   optionValue("project-id"),
 		projectNameOption: optionValue("project-name"),
