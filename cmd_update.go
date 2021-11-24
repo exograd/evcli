@@ -2,7 +2,9 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"runtime"
 
 	"github.com/galdor/go-program"
 	"github.com/google/go-github/v40/github"
@@ -15,7 +17,8 @@ func addUpdateCommand() {
 }
 
 func cmdUpdate(p *program.Program) {
-	newBuildId, err := findNewBuild()
+	// Check for a new build
+	newBuildId, err := findNewBuildId()
 	if err != nil {
 		p.Fatal("cannot find new evcli build: %v", err)
 	}
@@ -27,10 +30,21 @@ func cmdUpdate(p *program.Program) {
 
 	p.Info("updating to evcli %v", newBuildId)
 
+	// Locate the URI of the evcli binary for the current platform
+	os := runtime.GOOS
+	arch := runtime.GOARCH
+
+	buildURL, err := findBuildURI(newBuildId, os, arch)
+	if err != nil {
+		p.Fatal("cannot find build uri: %v", err)
+	}
+
+	p.Debug(1, "build uri: %s", buildURL)
+
 	// TODO
 }
 
-func findNewBuild() (*program.BuildId, error) {
+func findNewBuildId() (*program.BuildId, error) {
 	var currentBuildId program.BuildId
 	currentBuildId.Parse(buildId)
 
@@ -63,7 +77,7 @@ func lastBuildId() (*program.BuildId, error) {
 
 	release, _, err := client.Repositories.GetLatestRelease(ctx, org, repo)
 	if err != nil {
-		return nil, fmt.Errorf("cannot retrieve latest release: %w", err)
+		return nil, fmt.Errorf("cannot fetch latest release: %w", err)
 	}
 
 	tagName := release.GetTagName()
@@ -74,4 +88,40 @@ func lastBuildId() (*program.BuildId, error) {
 	}
 
 	return &buildId, nil
+}
+
+func findBuildURI(id *program.BuildId, os, arch string) (string, error) {
+	httpClient := NewHTTPClient()
+	client := github.NewClient(httpClient)
+
+	ctx := context.Background()
+
+	org := "exograd"
+	repo := "evcli"
+	tagName := id.String()
+
+	p.Debug(1, "fetching release for build %v on os %s and arch %s",
+		id, os, arch)
+
+	release, _, err := client.Repositories.GetReleaseByTag(ctx, org, repo,
+		tagName)
+	if err != nil {
+		var githubErr *github.ErrorResponse
+		if errors.As(err, &githubErr) && githubErr.Response.StatusCode == 404 {
+			return "", fmt.Errorf("release not found")
+		}
+
+		return "", fmt.Errorf("cannot fetch release: %w", err)
+	}
+
+	assetName := "evcli-" + os + "-" + arch
+
+	var asset *github.ReleaseAsset
+	for _, asset = range release.Assets {
+		if asset.GetName() == assetName {
+			break
+		}
+	}
+
+	return asset.GetBrowserDownloadURL(), nil
 }
