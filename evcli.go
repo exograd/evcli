@@ -76,10 +76,27 @@ func main() {
 	}
 
 	name := p.CommandName()
-	if name != "set-config" && name != "show-config" &&
-		name != "get-config" && name != "version" {
+
+	loadAPIKey := true
+	for _, cmdName := range noAPIKeyCommands() {
+		if name == cmdName {
+			loadAPIKey = false
+			break
+		}
+	}
+
+	if loadAPIKey {
 		app.LoadAPIKey()
 	}
 
 	p.Run()
+}
+
+func noAPIKeyCommands() []string {
+	return []string{
+		"get-config",
+		"set-config",
+		"show-config",
+		"version",
+	}
 }
