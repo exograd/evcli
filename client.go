@@ -21,16 +21,12 @@ type Client struct {
 }
 
 func NewClient(config *Config) (*Client, error) {
-	httpClient := NewHTTPClient()
-
 	baseURI, err := url.Parse(config.API.Endpoint)
 	if err != nil {
 		return nil, fmt.Errorf("invalid api endpoint: %w", err)
 	}
 
 	client := &Client{
-		httpClient: httpClient,
-
 		baseURI: baseURI,
 	}
 

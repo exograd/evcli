@@ -9,6 +9,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"runtime"
 	"strconv"
 	"time"
 
@@ -21,6 +22,7 @@ type App struct {
 	Client *Client
 
 	HTTPClient *http.Client
+	UserAgent  string
 
 	HomePath string
 
@@ -37,11 +39,16 @@ func NewApp(config *Config, client *Client) (*App, error) {
 		HTTPClient: NewHTTPClient(),
 	}
 
+	a.UserAgent = fmt.Sprintf("evcli/%s (%s; %s)",
+		buildId, runtime.GOOS, runtime.GOARCH)
+
 	homePath, err := os.UserHomeDir()
 	if err != nil {
 		return nil, fmt.Errorf("cannot locate user home directory: %w", err)
 	}
 	a.HomePath = homePath
+
+	client.httpClient = a.HTTPClient
 
 	return a, nil
 }

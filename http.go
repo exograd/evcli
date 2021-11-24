@@ -27,6 +27,8 @@ func NewRoundTripper(rt http.RoundTripper) *RoundTripper {
 }
 
 func (rt *RoundTripper) RoundTrip(req *http.Request) (*http.Response, error) {
+	req.Header.Add("User-Agent", app.UserAgent)
+
 	start := time.Now()
 	res, err := rt.RoundTripper.RoundTrip(req)
 	d := time.Now().Sub(start)
