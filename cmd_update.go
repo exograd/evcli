@@ -75,7 +75,7 @@ func cmdUpdate(p *program.Program) {
 	tmpPath := programPath + ".tmp"
 
 	if err := download(buildURI, tmpPath); err != nil {
-		p.Fatal("cannot download build: %w", err)
+		p.Fatal("cannot download build: %v", err)
 	}
 
 	// Rename the temporary binary to the installation directory
