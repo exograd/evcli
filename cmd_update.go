@@ -4,6 +4,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"os"
+	"path/filepath"
 	"runtime"
 
 	"github.com/galdor/go-program"
@@ -22,6 +24,7 @@ func addUpdateCommand() {
 }
 
 func cmdUpdate(p *program.Program) {
+	// Determinate the identifier of the build to download and install
 	var buildId *program.BuildId
 
 	if p.IsOptionSet("build-id") {
@@ -49,17 +52,29 @@ func cmdUpdate(p *program.Program) {
 
 	p.Info("updating to evcli %v", buildId)
 
-	// Locate the URI of the evcli binary for the current platform
-	os := runtime.GOOS
-	arch := runtime.GOARCH
+	// Find the URI of the evcli binary for the current platform
+	osName := runtime.GOOS
+	archName := runtime.GOARCH
 
-	buildURL, err := findBuildURI(buildId, os, arch)
+	buildURL, err := findBuildURI(buildId, osName, archName)
 	if err != nil {
 		p.Fatal("cannot find build uri: %v", err)
 	}
 
 	p.Debug(1, "build uri: %s", buildURL)
 
+	// Download the new evcli binary to a temporary location
+	// TODO
+
+	// Locate the directory of the current binary
+	dirPath, err := locateInstallationDir()
+	if err != nil {
+		p.Fatal("cannot locate installation directory: %w", err)
+	}
+
+	p.Debug(1, "installing evcli to %s", dirPath)
+
+	// Rename the temporary binary to the installation directory
 	// TODO
 }
 
@@ -109,7 +124,7 @@ func lastBuildId() (*program.BuildId, error) {
 	return &buildId, nil
 }
 
-func findBuildURI(id *program.BuildId, os, arch string) (string, error) {
+func findBuildURI(id *program.BuildId, osName, archName string) (string, error) {
 	httpClient := NewHTTPClient()
 	client := github.NewClient(httpClient)
 
@@ -120,7 +135,7 @@ func findBuildURI(id *program.BuildId, os, arch string) (string, error) {
 	tagName := id.String()
 
 	p.Debug(1, "fetching release for build %v on os %s and arch %s",
-		id, os, arch)
+		id, osName, archName)
 
 	release, _, err := client.Repositories.GetReleaseByTag(ctx, org, repo,
 		tagName)
@@ -133,7 +148,7 @@ func findBuildURI(id *program.BuildId, os, arch string) (string, error) {
 		return "", fmt.Errorf("cannot fetch release: %w", err)
 	}
 
-	assetName := "evcli-" + os + "-" + arch
+	assetName := "evcli-" + osName + "-" + archName
 
 	var asset *github.ReleaseAsset
 	for _, asset = range release.Assets {
@@ -143,4 +158,18 @@ func findBuildURI(id *program.BuildId, os, arch string) (string, error) {
 	}
 
 	return asset.GetBrowserDownloadURL(), nil
+}
+
+func locateInstallationDir() (string, error) {
+	dirPath, err := os.Executable()
+	if err != nil {
+		return "", fmt.Errorf("cannot find current executable path: %w", err)
+	}
+
+	resolvedDirPath, err := filepath.EvalSymlinks(dirPath)
+	if err != nil {
+		return "", fmt.Errorf("cannot resolve symlinks: %w", err)
+	}
+
+	return filepath.Dir(resolvedDirPath), nil
 }
