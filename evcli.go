@@ -21,8 +21,6 @@ func main() {
 	p.AddFlag("y", "yes", "skip all confirmations")
 	p.AddFlag("", "no-color", "do not use colors")
 
-	p.AddOption("", "project-path", "path", "",
-		"the path of the current project")
 	p.AddOption("", "project-id", "id", "",
 		"the identifier of the current project")
 	p.AddOption("p", "project-name", "name", "",
@@ -70,7 +68,6 @@ func main() {
 		p.Fatal("%v", err)
 	}
 
-	app.projectPathOption = optionValue("project-path")
 	app.projectIdOption = optionValue("project-id")
 	app.projectNameOption = optionValue("project-name")
 

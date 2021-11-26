@@ -26,7 +26,6 @@ type App struct {
 
 	HomePath string
 
-	projectPathOption *string
 	projectIdOption   *string
 	projectNameOption *string
 }
@@ -88,24 +87,8 @@ func (a *App) IdentifyCurrentProject() {
 }
 
 func (a *App) identifyCurrentProject() (string, error) {
-	id, err := a.loadProjectDirectory(".")
-	if err != nil {
-		return "", err
-	} else if id != "" {
-		return id, nil
-	}
-
 	if a.projectIdOption != nil {
 		return *a.projectIdOption, nil
-	}
-
-	if a.projectPathOption != nil {
-		id, err := a.loadProjectDirectory(*a.projectPathOption)
-		if err != nil {
-			return "", err
-		} else if id != "" {
-			return id, nil
-		}
 	}
 
 	if a.projectNameOption != nil {
@@ -117,6 +100,26 @@ func (a *App) identifyCurrentProject() (string, error) {
 		}
 
 		return project.Id, nil
+	}
+
+	if id := os.Getenv("EVENTLINE_PROJECT_ID"); id != "" {
+		return id, nil
+	}
+
+	if name := os.Getenv("EVENTLINE_PROJECT_NAME"); name != "" {
+		project, err := a.Client.FetchProjectByName(name)
+		if err != nil {
+			p.Fatal("cannot fetch project %q: %v", name, err)
+		}
+
+		return project.Id, nil
+	}
+
+	id, err := a.loadProjectDirectory(".")
+	if err != nil {
+		return "", err
+	} else if id != "" {
+		return id, nil
 	}
 
 	return "", fmt.Errorf("cannot identify the current project")
