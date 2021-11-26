@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
+	"strings"
 )
 
 type Client struct {
@@ -39,6 +40,8 @@ func (c *Client) SendRequest(method string, relURI *url.URL, body, dest interfac
 	var bodyReader io.Reader
 	if body == nil {
 		bodyReader = nil
+	} else if br, ok := body.(io.Reader); ok {
+		bodyReader = br
 	} else {
 		bodyData, err := json.Marshal(body)
 		if err != nil {
@@ -87,12 +90,16 @@ func (c *Client) SendRequest(method string, relURI *url.URL, body, dest interfac
 	}
 
 	if dest != nil {
-		if len(resBody) == 0 {
-			return fmt.Errorf("empty response body")
-		}
+		if dataPtr, ok := dest.(*[]byte); ok {
+			*dataPtr = resBody
+		} else {
+			if len(resBody) == 0 {
+				return fmt.Errorf("empty response body")
+			}
 
-		if err := json.Unmarshal(resBody, dest); err != nil {
-			return fmt.Errorf("cannot decode response body: %w", err)
+			if err := json.Unmarshal(resBody, dest); err != nil {
+				return fmt.Errorf("cannot decode response body: %w", err)
+			}
 		}
 	}
 
@@ -242,20 +249,52 @@ func (c *Client) RestartPipeline(id string) error {
 	return c.SendRequest("POST", &uri, nil, nil)
 }
 
-func (c *Client) FetchTasks() (Tasks, error) {
-	var page TaskPage
+func (c *Client) GetScratchpad(id string) (map[string]string, error) {
+	uri := url.URL{Path: "/v0/pipelines/id/" + id + "/scratchpad"}
 
-	query := url.Values{}
-	query.Add("size", "20")
-	query.Add("reverse", "")
-	uri := url.URL{Path: "/v0/tasks", RawQuery: query.Encode()}
+	var entries map[string]string
 
-	err := c.SendRequest("GET", &uri, nil, &page)
-	if err != nil {
+	if err := c.SendRequest("GET", &uri, nil, &entries); err != nil {
 		return nil, err
 	}
 
-	return page.Elements, nil
+	return entries, nil
+}
+
+func (c *Client) ClearScratchpad(id string) error {
+	uri := url.URL{Path: "/v0/pipelines/id/" + id + "/scratchpad"}
+
+	return c.SendRequest("DELETE", &uri, nil, nil)
+}
+
+func (c *Client) GetScratchpadEntry(id, key string) (string, error) {
+	uri := url.URL{
+		Path: "/v0/pipelines/id/" + id + "/scratchpad/key/" + url.PathEscape(key),
+	}
+
+	var value []byte
+
+	if err := c.SendRequest("GET", &uri, nil, &value); err != nil {
+		return "", err
+	}
+
+	return string(value), nil
+}
+
+func (c *Client) SetScratchpadEntry(id, key, value string) error {
+	uri := url.URL{
+		Path: "/v0/pipelines/id/" + id + "/scratchpad/key/" + url.PathEscape(key),
+	}
+
+	return c.SendRequest("PUT", &uri, strings.NewReader(value), nil)
+}
+
+func (c *Client) DeleteScratchpadEntry(id, key string) error {
+	uri := url.URL{
+		Path: "/v0/pipelines/id/" + id + "/scratchpad/key/" + url.PathEscape(key),
+	}
+
+	return c.SendRequest("DELETE", &uri, nil, nil)
 }
 
 func (c *Client) CreateEvent(newEvent *NewEvent) (Events, error) {
