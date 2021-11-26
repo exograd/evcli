@@ -65,6 +65,7 @@ func (c *Client) SendRequest(method string, relURI *url.URL, body, dest interfac
 	if err != nil {
 		return fmt.Errorf("cannot send request: %w", err)
 	}
+	defer res.Body.Close()
 
 	resBody, err := ioutil.ReadAll(res.Body)
 	if err != nil {
