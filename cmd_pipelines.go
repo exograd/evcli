@@ -22,6 +22,13 @@ func addPipelineCommands() {
 		cmdRestartPipeline)
 
 	c.AddArgument("pipeline-id", "the pipeline to restart")
+
+	// restart-pipeline-from-failure
+	c = p.AddCommand("restart-pipeline-from-failure",
+		"restart a pipeline from failed or aborted tasks",
+		cmdRestartPipelineFromFailure)
+
+	c.AddArgument("pipeline-id", "the pipeline to restart")
 }
 
 func cmdListPipelines(p *program.Program) {
@@ -77,6 +84,18 @@ func cmdRestartPipeline(p *program.Program) {
 
 	if err := app.Client.RestartPipeline(Id); err != nil {
 		p.Fatal("cannot restart pipeline: %v", err)
+	}
+
+	p.Info("pipeline restarted")
+}
+
+func cmdRestartPipelineFromFailure(p *program.Program) {
+	app.IdentifyCurrentProject()
+
+	Id := p.ArgumentValue("pipeline-id")
+
+	if err := app.Client.RestartPipelineFromFailure(Id); err != nil {
+		p.Fatal("cannot restart pipeline from failure: %v", err)
 	}
 
 	p.Info("pipeline restarted")

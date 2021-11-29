@@ -249,6 +249,12 @@ func (c *Client) RestartPipeline(id string) error {
 	return c.SendRequest("POST", &uri, nil, nil)
 }
 
+func (c *Client) RestartPipelineFromFailure(id string) error {
+	uri := url.URL{Path: "/v0/pipelines/id/" + id + "/restart_from_failure"}
+
+	return c.SendRequest("POST", &uri, nil, nil)
+}
+
 func (c *Client) GetScratchpad(id string) (map[string]string, error) {
 	uri := url.URL{Path: "/v0/pipelines/id/" + id + "/scratchpad"}
 
