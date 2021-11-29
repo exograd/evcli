@@ -165,7 +165,7 @@ func (a *App) LookForLastBuild() {
 		return
 	}
 
-	p.Info("evcli %v is now available: run \"evcli update\" to install it")
+	p.Info("evcli %v is now available: run \"evcli update\" to install it", lastBuldId)
 }
 
 func (a *App) lookForLastBuild() (*program.BuildId, error) {
