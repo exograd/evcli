@@ -95,6 +95,7 @@ func main() {
 func noAPIKeyCommands() []string {
 	return []string{
 		"get-config",
+		"help",
 		"set-config",
 		"show-config",
 		"update",
