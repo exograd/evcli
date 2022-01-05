@@ -196,7 +196,9 @@ func (c *Client) FetchCommands() ([]*Resource, error) {
 }
 
 func (c *Client) FetchCommandByName(name string) (*Resource, error) {
-	uri := url.URL{Path: "/v0/commands/name/" + name}
+	uri := url.URL{
+		Path: "/v0/resources/type/command/name/" + url.PathEscape(name),
+	}
 
 	var command Resource
 
