@@ -105,11 +105,11 @@ func cmdExecuteCommand(p *program.Program) {
 		p.Fatal("%v", err)
 	}
 
-	execution := CommandExecution{
+	input := CommandExecutionInput{
 		Parameters: parameters,
 	}
 
-	result, err := app.Client.ExecuteCommand(command.Id, &execution)
+	result, err := app.Client.ExecuteCommand(command.Id, &input)
 	if err != nil {
 		p.Fatal("cannot execute command: %v", err)
 	}
@@ -123,11 +123,7 @@ func cmdExecuteCommand(p *program.Program) {
 		p.Info("%d pipelines created", nbPipelines)
 	}
 
-	table := NewTable([]string{"Pipeline"})
-	for _, pipelineId := range result.PipelineIds {
-		table.AddRow([]interface{}{pipelineId})
-	}
-	table.Write()
+	fmt.Printf("%s\n", result.Id)
 }
 
 func parseParameters(parameterStrings []string, command *Resource) (map[string]interface{}, error) {

@@ -260,10 +260,18 @@ type Event struct {
 
 type Events []*Event
 
-type CommandExecution struct {
+type CommandExecutionInput struct {
 	Parameters map[string]interface{} `json:"parameters"`
 }
 
-type CommandExecutionResult struct {
-	PipelineIds []string `json:"pipeline_ids"`
+type CommandExecution struct {
+	Id            string                 `json:"id"`
+	OrgId         string                 `json:"org_id"`
+	ProjectId     string                 `json:"project_id"`
+	ExecutorId    string                 `json:"executor_id,omitempty"`
+	ExecutionTime time.Time              `json:"execution_time"`
+	CommandId     string                 `json:"command_id"`
+	Parameters    map[string]interface{} `json:"parameters"`
+	EventId       string                 `json:"event_id"`
+	PipelineIds   []string               `json:"pipeline_ids"`
 }

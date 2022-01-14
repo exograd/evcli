@@ -210,17 +210,17 @@ func (c *Client) FetchCommandByName(name string) (*Resource, error) {
 	return &command, nil
 }
 
-func (c *Client) ExecuteCommand(id string, execution *CommandExecution) (*CommandExecutionResult, error) {
+func (c *Client) ExecuteCommand(id string, input *CommandExecutionInput) (*CommandExecution, error) {
 	uri := url.URL{Path: "/v0/commands/id/" + id + "/execute"}
 
-	var result CommandExecutionResult
+	var execution CommandExecution
 
-	err := c.SendRequest("POST", &uri, execution, &result)
+	err := c.SendRequest("POST", &uri, input, &execution)
 	if err != nil {
 		return nil, err
 	}
 
-	return &result, nil
+	return &execution, nil
 }
 
 func (c *Client) FetchPipelines() (Pipelines, error) {
