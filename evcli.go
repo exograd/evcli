@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/galdor/go-program"
+	"github.com/exograd/go-program"
 )
 
 var (

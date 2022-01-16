@@ -13,7 +13,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/galdor/go-program"
+	"github.com/exograd/go-program"
 	"github.com/google/go-github/v40/github"
 )
 

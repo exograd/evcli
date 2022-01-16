@@ -7,7 +7,7 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/galdor/go-program"
+	"github.com/exograd/go-program"
 	"github.com/qri-io/jsonpointer"
 )
 

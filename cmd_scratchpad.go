@@ -5,7 +5,7 @@ import (
 	"os"
 	"sort"
 
-	"github.com/galdor/go-program"
+	"github.com/exograd/go-program"
 )
 
 func addScratchpadCommands() {
