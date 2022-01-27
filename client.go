@@ -228,7 +228,7 @@ func (c *Client) FetchPipelines() (Pipelines, error) {
 
 	query := url.Values{}
 	query.Add("size", "20")
-	query.Add("reverse", "")
+	query.Add("order", "desc")
 	uri := url.URL{Path: "/v0/pipelines", RawQuery: query.Encode()}
 
 	err := c.SendRequest("GET", &uri, nil, &page)
