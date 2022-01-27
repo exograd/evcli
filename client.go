@@ -228,6 +228,7 @@ func (c *Client) FetchPipelines() (Pipelines, error) {
 
 	query := url.Values{}
 	query.Add("size", "20")
+	query.Add("sort", "event_time")
 	query.Add("order", "desc")
 	uri := url.URL{Path: "/v0/pipelines", RawQuery: query.Encode()}
 
