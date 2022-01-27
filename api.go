@@ -178,6 +178,7 @@ type Pipeline struct {
 	PipelineId   string     `json:"pipeline_id,omitempty"`
 	TriggerId    string     `json:"trigger_id,omitempty"`
 	EventId      string     `json:"event_id,omitempty"`
+	EventTime    string     `json:"event_time"`
 	Concurrent   bool       `json:"concurrent,omitempty"`
 	Status       string     `json:"status"`
 	StartTime    *time.Time `json:"start_time,omitempty"`

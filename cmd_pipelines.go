@@ -42,7 +42,7 @@ func cmdListPipelines(p *program.Program) {
 	header := []string{
 		"id",
 		"name",
-		"creation time",
+		"event time",
 		"start time",
 		"duration",
 		"status",
@@ -53,7 +53,7 @@ func cmdListPipelines(p *program.Program) {
 		row := []interface{}{
 			pipeline.Id,
 			pipeline.Name,
-			pipeline.CreationTime,
+			pipeline.EventTime,
 			pipeline.StartTime,
 			pipeline.Duration(),
 			pipeline.Status,
