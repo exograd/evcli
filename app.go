@@ -53,8 +53,8 @@ func NewApp(config *Config, client *Client) (*App, error) {
 }
 
 func (a *App) LoadAPIKey() {
-	if key := os.Getenv("EVCLI_API_KEY"); key != "" {
-		p.Debug(1, "using api key from EVCLI_API_KEY environment variable")
+	if key := os.Getenv("EVENTLINE_API_KEY"); key != "" {
+		p.Debug(1, "using api key from EVENTLINE_API_KEY environment variable")
 		a.Client.APIKey = key
 		return
 	}
@@ -70,7 +70,7 @@ func (a *App) LoadAPIKey() {
 		"You can either edit the evcli configuration file or use the " +
 		"following command:")
 	p.Info("\n\tevcli set-config api.key <key>")
-	p.Info("\nAlternatively, you can set the EVCLI_API_KEY environment " +
+	p.Info("\nAlternatively, you can set the EVENTLINE_API_KEY environment " +
 		"variable.")
 	os.Exit(1)
 }
