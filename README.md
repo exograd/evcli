@@ -5,7 +5,7 @@ platform](https://www.eventline.net).
 # Installation
 The fastest way to install evcli is to use the installation script:
 ```sh
-curl -sSLf https://github.com/exograd/evcli/releases/latest/download/evcli-install | sh -
+curl -sSLf https://download.eventline.net/evcli-install | sh -
 ```
 
 See the documentation for more information.
