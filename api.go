@@ -258,6 +258,7 @@ type NewEvent struct {
 type Event struct {
 	Id           string          `json:"id"`
 	OrgId        string          `json:"org_id"`
+	ProjectId    string          `json:"project_id"`
 	TriggerId    string          `json:"trigger_id,omitempty"`
 	CreationTime time.Time       `json:"creation_time"`
 	EventTime    time.Time       `json:"event_time"`
