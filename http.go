@@ -50,7 +50,7 @@ func FormatRequestDuration(d time.Duration) string {
 
 	switch {
 	case s < 0.001:
-		return fmt.Sprintf("%dμs", d.Microseconds())
+		return fmt.Sprintf("%dµs", d.Microseconds())
 
 	case s < 1.0:
 		return fmt.Sprintf("%dms", d.Milliseconds())
