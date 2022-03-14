@@ -36,6 +36,15 @@ func init() {
 				return setBool(s, &c.Interface.Color)
 			},
 		},
+		ConfigEntry{
+			Name: "misc.disable_update_check",
+			Get: func(c *Config) string {
+				return fmtBool(c.Misc.DisableUpdateCheck)
+			},
+			Set: func(c *Config, s string) error {
+				return setBool(s, &c.Misc.DisableUpdateCheck)
+			},
+		},
 	}
 
 	ConfigEntries = make(map[string]ConfigEntry)

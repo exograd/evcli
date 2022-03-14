@@ -14,6 +14,7 @@ import (
 type Config struct {
 	Interface InterfaceConfig `json:"interface,omitempty"`
 	API       APIConfig       `json:"api,omitempty"`
+	Misc      MiscConfig      `json:"misc,omitempty"`
 }
 
 type InterfaceConfig struct {
@@ -23,6 +24,10 @@ type InterfaceConfig struct {
 type APIConfig struct {
 	Endpoint string `json:"endpoint,omitempty"`
 	Key      string `json:"key,omitempty"`
+}
+
+type MiscConfig struct {
+	DisableUpdateCheck bool `json:"disable_update_check,omitempty"`
 }
 
 func LoadConfig() (*Config, error) {

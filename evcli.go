@@ -85,7 +85,7 @@ func main() {
 		app.LoadAPIKey()
 	}
 
-	if name != "update" {
+	if !config.Misc.DisableUpdateCheck && name != "update" {
 		app.LookForLastBuild()
 	}
 
