@@ -317,3 +317,15 @@ func (c *Client) CreateEvent(newEvent *NewEvent) (Events, error) {
 
 	return events, nil
 }
+
+func (c *Client) ReplayEvent(id string) (*Event, error) {
+	var event Event
+
+	uri := url.URL{Path: "/v0/events/id/" + id + "/replay"}
+	err := c.SendRequest("POST", &uri, nil, &event)
+	if err != nil {
+		return nil, err
+	}
+
+	return &event, nil
+}

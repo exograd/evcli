@@ -256,16 +256,17 @@ type NewEvent struct {
 }
 
 type Event struct {
-	Id           string          `json:"id"`
-	OrgId        string          `json:"org_id"`
-	ProjectId    string          `json:"project_id"`
-	TriggerId    string          `json:"trigger_id,omitempty"`
-	CreationTime time.Time       `json:"creation_time"`
-	EventTime    time.Time       `json:"event_time"`
-	Connector    string          `json:"connector"`
-	Name         string          `json:"name"`
-	Data         json.RawMessage `json:"data"`
-	Processed    bool            `json:"processed,omitempty"`
+	Id              string          `json:"id"`
+	OrgId           string          `json:"org_id"`
+	ProjectId       string          `json:"project_id"`
+	TriggerId       string          `json:"trigger_id,omitempty"`
+	CreationTime    time.Time       `json:"creation_time"`
+	EventTime       time.Time       `json:"event_time"`
+	Connector       string          `json:"connector"`
+	Name            string          `json:"name"`
+	Data            json.RawMessage `json:"data"`
+	Processed       bool            `json:"processed,omitempty"`
+	OriginalEventId string          `json:"original_event_id"`
 }
 
 type Events []*Event

@@ -22,6 +22,12 @@ func addEventCommands() {
 	c.AddArgument("event", "the name of the event")
 	c.AddArgument("data",
 		"the JSON object representing event data (\"-\" to read stdin)")
+
+	// replay-event
+	c = p.AddCommand("replay-event", "replay an existing event",
+		cmdReplayEvent)
+
+	c.AddArgument("event-id", "the identifier of the event")
 }
 
 func cmdCreateEvent(p *program.Program) {
@@ -65,4 +71,17 @@ func cmdCreateEvent(p *program.Program) {
 	}
 
 	p.Info("events created")
+}
+
+func cmdReplayEvent(p *program.Program) {
+	app.IdentifyCurrentProject()
+
+	EventId := p.ArgumentValue("event-id")
+
+	event, err := app.Client.ReplayEvent(EventId)
+	if err != nil {
+		p.Fatal("cannot replay event: %v", err)
+	}
+
+	p.Info("event %s created", event.Id)
 }
