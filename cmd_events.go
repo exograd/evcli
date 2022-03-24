@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"io/ioutil"
 	"os"
 	"time"
@@ -84,4 +85,6 @@ func cmdReplayEvent(p *program.Program) {
 	}
 
 	p.Info("event %s created", event.Id)
+
+	fmt.Printf("%s\n", event.Id)
 }
