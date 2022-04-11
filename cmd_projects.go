@@ -76,7 +76,15 @@ func cmdInitializeProject(p *program.Program) {
 
 	project, err := app.Client.FetchProjectByName(name)
 	if err != nil {
-		p.Fatal("cannot fetch project %q: %v", name, err)
+		var apiErr *APIError
+		if errors.As(err, &apiErr) && apiErr.Code == "unknown_project" {
+			p.Error("unknown project")
+			p.Info("\nYou can use the create-project command to create a " +
+				"new project and initialize its directory.")
+			os.Exit(1)
+		} else {
+			p.Fatal("cannot fetch project %q: %v", name, err)
+		}
 	}
 
 	projectFile.Name = name
