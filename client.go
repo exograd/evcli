@@ -109,11 +109,13 @@ func (c *Client) SendRequest(method string, relURI *url.URL, body, dest interfac
 func (c *Client) FetchProjects() ([]*Project, error) {
 	var page ProjectPage
 
+	uri := NewURL("v0", "projects")
+
 	query := url.Values{}
 	query.Add("size", "20")
-	uri := url.URL{Path: "/v0/projects", RawQuery: query.Encode()}
+	uri.RawQuery = query.Encode()
 
-	err := c.SendRequest("GET", &uri, nil, &page)
+	err := c.SendRequest("GET", uri, nil, &page)
 	if err != nil {
 		return nil, err
 	}
@@ -122,11 +124,11 @@ func (c *Client) FetchProjects() ([]*Project, error) {
 }
 
 func (c *Client) FetchProjectByName(name string) (*Project, error) {
-	uri := url.URL{Path: "/v0/projects/name/" + name}
+	uri := NewURL("v0", "projects", "name", name)
 
 	var project Project
 
-	err := c.SendRequest("GET", &uri, nil, &project)
+	err := c.SendRequest("GET", uri, nil, &project)
 	if err != nil {
 		return nil, err
 	}
@@ -135,29 +137,27 @@ func (c *Client) FetchProjectByName(name string) (*Project, error) {
 }
 
 func (c *Client) CreateProject(project *Project) error {
-	uri := url.URL{Path: "/v0/projects"}
+	uri := NewURL("v0", "projects")
 
-	return c.SendRequest("POST", &uri, project, project)
+	return c.SendRequest("POST", uri, project, project)
 }
 
 func (c *Client) DeleteProject(id string) error {
-	uri := url.URL{Path: "/v0/projects/id/" + id}
+	uri := NewURL("v0", "projects", "id", id)
 
-	return c.SendRequest("DELETE", &uri, nil, nil)
+	return c.SendRequest("DELETE", uri, nil, nil)
 }
 
 func (c *Client) DeployProject(id string, rs *ResourceSet, dryRun bool) error {
+	uri := NewURL("v0", "projects", "id", id, "resources")
+
 	query := url.Values{}
 	if dryRun {
 		query.Add("dry-run", "")
 	}
+	uri.RawQuery = query.Encode()
 
-	uri := url.URL{
-		Path:     "/v0/projects/id/" + id + "/resources",
-		RawQuery: query.Encode(),
-	}
-
-	return c.SendRequest("PUT", &uri, rs, nil)
+	return c.SendRequest("PUT", uri, rs, nil)
 }
 
 func (c *Client) FetchCommands() ([]*Resource, error) {
@@ -168,17 +168,17 @@ func (c *Client) FetchCommands() ([]*Resource, error) {
 	for {
 		var page ResourcePage
 
-		query := url.Values{}
+		uri := NewURL("v0", "resources")
 
+		query := url.Values{}
 		query.Add("type", "command")
 		query.Add("size", strconv.FormatUint(uint64(cursor.Size), 10))
 		if cursor.After != "" {
 			query.Add("after", cursor.After)
 		}
+		uri.RawQuery = query.Encode()
 
-		uri := url.URL{Path: "/v0/resources", RawQuery: query.Encode()}
-
-		err := c.SendRequest("GET", &uri, nil, &page)
+		err := c.SendRequest("GET", uri, nil, &page)
 		if err != nil {
 			return nil, err
 		}
@@ -196,13 +196,11 @@ func (c *Client) FetchCommands() ([]*Resource, error) {
 }
 
 func (c *Client) FetchCommandByName(name string) (*Resource, error) {
-	uri := url.URL{
-		Path: "/v0/resources/type/command/name/" + url.PathEscape(name),
-	}
+	uri := NewURL("v0", "resources", "type", "command", "name", name)
 
 	var command Resource
 
-	err := c.SendRequest("GET", &uri, nil, &command)
+	err := c.SendRequest("GET", uri, nil, &command)
 	if err != nil {
 		return nil, err
 	}
@@ -211,11 +209,11 @@ func (c *Client) FetchCommandByName(name string) (*Resource, error) {
 }
 
 func (c *Client) ExecuteCommand(id string, input *CommandExecutionInput) (*CommandExecution, error) {
-	uri := url.URL{Path: "/v0/commands/id/" + id + "/execute"}
+	uri := NewURL("v0", "commands", "id", id, "execute")
 
 	var execution CommandExecution
 
-	err := c.SendRequest("POST", &uri, input, &execution)
+	err := c.SendRequest("POST", uri, input, &execution)
 	if err != nil {
 		return nil, err
 	}
@@ -226,13 +224,15 @@ func (c *Client) ExecuteCommand(id string, input *CommandExecutionInput) (*Comma
 func (c *Client) FetchPipelines() (Pipelines, error) {
 	var page PipelinePage
 
+	uri := NewURL("v0", "pipelines")
+
 	query := url.Values{}
 	query.Add("size", "20")
 	query.Add("sort", "event_time")
 	query.Add("order", "desc")
-	uri := url.URL{Path: "/v0/pipelines", RawQuery: query.Encode()}
+	uri.RawQuery = query.Encode()
 
-	err := c.SendRequest("GET", &uri, nil, &page)
+	err := c.SendRequest("GET", uri, nil, &page)
 	if err != nil {
 		return nil, err
 	}
@@ -241,29 +241,29 @@ func (c *Client) FetchPipelines() (Pipelines, error) {
 }
 
 func (c *Client) AbortPipeline(id string) error {
-	uri := url.URL{Path: "/v0/pipelines/id/" + id + "/abort"}
+	uri := NewURL("v0", "pipelines", "id", id, "abort")
 
-	return c.SendRequest("POST", &uri, nil, nil)
+	return c.SendRequest("POST", uri, nil, nil)
 }
 
 func (c *Client) RestartPipeline(id string) error {
-	uri := url.URL{Path: "/v0/pipelines/id/" + id + "/restart"}
+	uri := NewURL("v0", "pipelines", "id", id, "restart")
 
-	return c.SendRequest("POST", &uri, nil, nil)
+	return c.SendRequest("POST", uri, nil, nil)
 }
 
 func (c *Client) RestartPipelineFromFailure(id string) error {
-	uri := url.URL{Path: "/v0/pipelines/id/" + id + "/restart_from_failure"}
+	uri := NewURL("v0", "pipelines", "id", id, "restart_from_failure")
 
-	return c.SendRequest("POST", &uri, nil, nil)
+	return c.SendRequest("POST", uri, nil, nil)
 }
 
 func (c *Client) GetScratchpad(id string) (map[string]string, error) {
-	uri := url.URL{Path: "/v0/pipelines/id/" + id + "/scratchpad"}
+	uri := NewURL("v0", "pipelines", "id", id, "scratchpad")
 
 	var entries map[string]string
 
-	if err := c.SendRequest("GET", &uri, nil, &entries); err != nil {
+	if err := c.SendRequest("GET", uri, nil, &entries); err != nil {
 		return nil, err
 	}
 
@@ -271,19 +271,17 @@ func (c *Client) GetScratchpad(id string) (map[string]string, error) {
 }
 
 func (c *Client) ClearScratchpad(id string) error {
-	uri := url.URL{Path: "/v0/pipelines/id/" + id + "/scratchpad"}
+	uri := NewURL("v0", "pipelines", "id", id, "scratchpad")
 
-	return c.SendRequest("DELETE", &uri, nil, nil)
+	return c.SendRequest("DELETE", uri, nil, nil)
 }
 
 func (c *Client) GetScratchpadEntry(id, key string) (string, error) {
-	uri := url.URL{
-		Path: "/v0/pipelines/id/" + id + "/scratchpad/key/" + url.PathEscape(key),
-	}
+	uri := NewURL("v0", "pipelines", "id", id, "scratchpad", "key", key)
 
 	var value []byte
 
-	if err := c.SendRequest("GET", &uri, nil, &value); err != nil {
+	if err := c.SendRequest("GET", uri, nil, &value); err != nil {
 		return "", err
 	}
 
@@ -291,26 +289,23 @@ func (c *Client) GetScratchpadEntry(id, key string) (string, error) {
 }
 
 func (c *Client) SetScratchpadEntry(id, key, value string) error {
-	uri := url.URL{
-		Path: "/v0/pipelines/id/" + id + "/scratchpad/key/" + url.PathEscape(key),
-	}
+	uri := NewURL("v0", "pipelines", "id", id, "scratchpad", "key", key)
 
-	return c.SendRequest("PUT", &uri, strings.NewReader(value), nil)
+	return c.SendRequest("PUT", uri, strings.NewReader(value), nil)
 }
 
 func (c *Client) DeleteScratchpadEntry(id, key string) error {
-	uri := url.URL{
-		Path: "/v0/pipelines/id/" + id + "/scratchpad/key/" + url.PathEscape(key),
-	}
+	uri := NewURL("v0", "pipelines", "id", id, "scratchpad", "key", key)
 
-	return c.SendRequest("DELETE", &uri, nil, nil)
+	return c.SendRequest("DELETE", uri, nil, nil)
 }
 
 func (c *Client) CreateEvent(newEvent *NewEvent) (Events, error) {
 	var events Events
 
-	uri := url.URL{Path: "/v0/events"}
-	err := c.SendRequest("POST", &uri, newEvent, &events)
+	uri := NewURL("v0", "events")
+
+	err := c.SendRequest("POST", uri, newEvent, &events)
 	if err != nil {
 		return nil, err
 	}
@@ -321,8 +316,9 @@ func (c *Client) CreateEvent(newEvent *NewEvent) (Events, error) {
 func (c *Client) ReplayEvent(id string) (*Event, error) {
 	var event Event
 
-	uri := url.URL{Path: "/v0/events/id/" + id + "/replay"}
-	err := c.SendRequest("POST", &uri, nil, &event)
+	uri := NewURL("v0", "events", "id", id, "replay")
+
+	err := c.SendRequest("POST", uri, nil, &event)
 	if err != nil {
 		return nil, err
 	}
