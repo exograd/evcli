@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"sort"
 	"strconv"
 
 	"github.com/exograd/go-program"
@@ -46,6 +47,13 @@ func addProjectCommands() {
 	c.AddOption("d", "directory", "path", ".",
 		"the directory containing project data")
 	c.AddFlag("n", "dry-run", "validate resources but do not deploy them")
+
+	// list-project-files
+	c = p.AddCommand("list-project-files",
+		"list resource files in a project directory", cmdListProjectFiles)
+
+	c.AddOption("d", "directory", "path", ".",
+		"the directory containing project data")
 }
 
 func cmdListProjects(p *program.Program) {
@@ -248,4 +256,22 @@ func formatInvalidRequestBodyError(err InvalidRequestBodyError, resourceSet *Res
 	}
 
 	return buf.String()
+}
+
+func cmdListProjectFiles(p *program.Program) {
+	dirPath := p.OptionValue("directory")
+
+	filePaths, err := FindResourceFiles(dirPath)
+	if err != nil {
+		p.Fatal("cannot find files: %v", err)
+	}
+
+	sort.Strings(filePaths)
+
+	dirPathLen := len(dirPath)
+
+	for _, filePath := range filePaths {
+		relFilePath := filePath[dirPathLen+1:]
+		fmt.Printf("%s\n", relFilePath)
+	}
 }

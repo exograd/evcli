@@ -26,8 +26,7 @@ type ResourceFile struct {
 }
 
 func (rs *ResourceSet) Load(dirPath string) error {
-	extensions := []string{".yml", ".yaml"}
-	filePaths, err := FindFiles(dirPath, extensions)
+	filePaths, err := FindResourceFiles(dirPath)
 	if err != nil {
 		return fmt.Errorf("cannot find files: %w", err)
 	}
@@ -96,6 +95,17 @@ func LoadResourceFile(filePath string) ([]*ResourceFile, error) {
 	}
 
 	return resources, nil
+}
+
+func FindResourceFiles(dirPath string) ([]string, error) {
+	extensions := []string{".yml", ".yaml"}
+
+	filePaths, err := FindFiles(dirPath, extensions)
+	if err != nil {
+		return nil, err
+	}
+
+	return filePaths, nil
 }
 
 func FindFiles(dirPath string, extensions []string) ([]string, error) {
