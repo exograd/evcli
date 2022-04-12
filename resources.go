@@ -98,87 +98,38 @@ func LoadResourceFile(filePath string) ([]*ResourceFile, error) {
 }
 
 func FindResourceFiles(dirPath string) ([]string, error) {
-	extensions := []string{".yml", ".yaml"}
-
-	filePaths, err := FindFiles(dirPath, extensions)
-	if err != nil {
-		return nil, err
-	}
-
-	filePaths = filterHiddenFiles(filePaths, dirPath)
-
-	return filePaths, nil
+	return findResourceFiles(dirPath)
 }
 
-func filterHiddenFiles(inFilePaths []string, dirPath string) []string {
-	dirPathLen := len(dirPath)
-
+func findResourceFiles(dirPath string) ([]string, error) {
 	var filePaths []string
-	for _, filePath := range inFilePaths {
-		relFilePath := filePath[dirPathLen+1:]
 
-		dirPath, fileName := filepath.Split(relFilePath)
+	entries, err := os.ReadDir(dirPath)
+	if err != nil {
+		return nil, fmt.Errorf("cannot read directory %s: %w", dirPath, err)
+	}
 
+	for _, e := range entries {
+		fileName := e.Name()
 		if fileName[0] == '.' {
-			p.Debug(1, "ignoring hidden file %s", filePath)
 			continue
 		}
 
-		isHiddenDir := false
-
-		for {
-			dirName, dirPath2, found := strings.Cut(dirPath, "/")
-			if !found {
-				break
-			}
-
-			if dirName[0] == '.' {
-				isHiddenDir = true
-				break
-			}
-
-			dirPath = dirPath2
-		}
-
-		if isHiddenDir {
-			p.Debug(1, "ignoring file %s in hidden directory", filePath)
-			continue
-		}
-
-		filePaths = append(filePaths, filePath)
-	}
-
-	return filePaths
-}
-
-func FindFiles(dirPath string, extensions []string) ([]string, error) {
-	var filePaths []string
-
-	err := filepath.Walk(dirPath,
-		func(filePath string, _ os.FileInfo, err error) error {
+		if e.IsDir() {
+			filePaths2, err := findResourceFiles(path.Join(dirPath, fileName))
 			if err != nil {
-				return err
+				return nil, err
 			}
 
-			ext := strings.ToLower(filepath.Ext(filePath))
-
-			match := false
-			for _, e := range extensions {
-				if ext == e {
-					match = true
-					break
-				}
+			filePaths = append(filePaths, filePaths2...)
+		} else {
+			ext := strings.ToLower(filepath.Ext(fileName))
+			if ext != ".yaml" && ext != ".yml" {
+				continue
 			}
 
-			if !match {
-				return nil
-			}
-
-			filePaths = append(filePaths, filePath)
-			return nil
-		})
-	if err != nil {
-		return nil, err
+			filePaths = append(filePaths, path.Join(dirPath, fileName))
+		}
 	}
 
 	return filePaths, nil
