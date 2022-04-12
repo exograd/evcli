@@ -105,7 +105,50 @@ func FindResourceFiles(dirPath string) ([]string, error) {
 		return nil, err
 	}
 
+	filePaths = filterHiddenFiles(filePaths, dirPath)
+
 	return filePaths, nil
+}
+
+func filterHiddenFiles(inFilePaths []string, dirPath string) []string {
+	dirPathLen := len(dirPath)
+
+	var filePaths []string
+	for _, filePath := range inFilePaths {
+		relFilePath := filePath[dirPathLen+1:]
+
+		dirPath, fileName := filepath.Split(relFilePath)
+
+		if fileName[0] == '.' {
+			p.Debug(1, "ignoring hidden file %s", filePath)
+			continue
+		}
+
+		isHiddenDir := false
+
+		for {
+			dirName, dirPath2, found := strings.Cut(dirPath, "/")
+			if !found {
+				break
+			}
+
+			if dirName[0] == '.' {
+				isHiddenDir = true
+				break
+			}
+
+			dirPath = dirPath2
+		}
+
+		if isHiddenDir {
+			p.Debug(1, "ignoring file %s in hidden directory", filePath)
+			continue
+		}
+
+		filePaths = append(filePaths, filePath)
+	}
+
+	return filePaths
 }
 
 func FindFiles(dirPath string, extensions []string) ([]string, error) {
