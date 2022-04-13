@@ -174,8 +174,13 @@ func cmdDeployProject(p *program.Program) {
 
 	app.Client.ProjectId = projectFile.Id
 
+	var ignoreSet IgnoreSet
+	if err := ignoreSet.LoadDirectoryIfExists(dirPath); err != nil {
+		p.Fatal("cannot load ignore file: %v", err)
+	}
+
 	var resourceSet ResourceSet
-	if err := resourceSet.Load(dirPath); err != nil {
+	if err := resourceSet.Load(dirPath, &ignoreSet); err != nil {
 		p.Fatal("cannot load resources: %v", err)
 	}
 
@@ -261,7 +266,12 @@ func formatInvalidRequestBodyError(err InvalidRequestBodyError, resourceSet *Res
 func cmdListProjectFiles(p *program.Program) {
 	dirPath := p.OptionValue("directory")
 
-	filePaths, err := FindResourceFiles(dirPath)
+	var ignoreSet IgnoreSet
+	if err := ignoreSet.LoadDirectoryIfExists(dirPath); err != nil {
+		p.Fatal("cannot load ignore file: %v", err)
+	}
+
+	filePaths, err := FindResourceFiles(dirPath, &ignoreSet)
 	if err != nil {
 		p.Fatal("cannot find files: %v", err)
 	}

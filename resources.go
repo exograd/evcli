@@ -25,8 +25,8 @@ type ResourceFile struct {
 	Value    interface{}
 }
 
-func (rs *ResourceSet) Load(dirPath string) error {
-	filePaths, err := FindResourceFiles(dirPath)
+func (rs *ResourceSet) Load(dirPath string, ignoreSet *IgnoreSet) error {
+	filePaths, err := FindResourceFiles(dirPath, ignoreSet)
 	if err != nil {
 		return fmt.Errorf("cannot find files: %w", err)
 	}
@@ -97,16 +97,16 @@ func LoadResourceFile(filePath string) ([]*ResourceFile, error) {
 	return resources, nil
 }
 
-func FindResourceFiles(dirPath string) ([]string, error) {
-	return findResourceFiles(dirPath)
+func FindResourceFiles(dirPath string, ignoreSet *IgnoreSet) ([]string, error) {
+	return findResourceFiles(dirPath, dirPath, ignoreSet)
 }
 
-func findResourceFiles(dirPath string) ([]string, error) {
+func findResourceFiles(dirPath, curDirPath string, ignoreSet *IgnoreSet) ([]string, error) {
 	var filePaths []string
 
-	entries, err := os.ReadDir(dirPath)
+	entries, err := os.ReadDir(curDirPath)
 	if err != nil {
-		return nil, fmt.Errorf("cannot read directory %s: %w", dirPath, err)
+		return nil, fmt.Errorf("cannot read directory %s: %w", curDirPath, err)
 	}
 
 	for _, e := range entries {
@@ -116,7 +116,9 @@ func findResourceFiles(dirPath string) ([]string, error) {
 		}
 
 		if e.IsDir() {
-			filePaths2, err := findResourceFiles(path.Join(dirPath, fileName))
+			subDirPath := path.Join(curDirPath, fileName)
+			filePaths2, err := findResourceFiles(dirPath, subDirPath,
+				ignoreSet)
 			if err != nil {
 				return nil, err
 			}
@@ -128,7 +130,15 @@ func findResourceFiles(dirPath string) ([]string, error) {
 				continue
 			}
 
-			filePaths = append(filePaths, path.Join(dirPath, fileName))
+			filePath := path.Join(curDirPath, fileName)
+
+			relPath := filePath[len(dirPath):]
+			if ignoreSet.Match(relPath) {
+				p.Debug(2, "ignoring resource file %s", filePath)
+				continue
+			}
+
+			filePaths = append(filePaths, filePath)
 		}
 	}
 
