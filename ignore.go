@@ -56,6 +56,10 @@ func (is *IgnoreSet) LoadData(data []byte) error {
 			continue
 		}
 
+		if line[0] == '#' {
+			continue
+		}
+
 		if err := is.addPattern(line); err != nil {
 			return fmt.Errorf("invalid ignore entry %q: %w", line, err)
 		}
