@@ -52,15 +52,33 @@ func (is *IgnoreSet) LoadData(data []byte) error {
 			continue
 		}
 
-		glob, err := glob.Compile(line, '/')
-		if err != nil {
-			return fmt.Errorf("invalid glob pattern %q: %w", line, err)
+		if err := is.addPattern(line); err != nil {
+			return fmt.Errorf("invalid ignore entry %q: %w", line, err)
 		}
-
-		entry := IgnoreEntryMatch(glob)
-
-		is.Entries = append(is.Entries, entry)
 	}
+
+	return nil
+}
+
+func (is *IgnoreSet) addPattern(s string) error {
+	if s[0] != '/' && !strings.HasPrefix(s, "**/") {
+		// "foo/bar" matches "bar" files in a "foo" directory at any depth
+		// level. We can expand it to "**/foo/bar.
+		s = "**/" + s
+	}
+
+	if s[len(s)-1] == '/' && !strings.HasSuffix(s, "/**/") {
+		// "/foo/bar/" means "recursively match all files in the /foo/bar/
+		// directory". Therefore the glob pattern is "/foo/bar/**".
+		s += "**"
+	}
+
+	glob, err := glob.Compile(s, '/')
+	if err != nil {
+		return fmt.Errorf("invalid glob pattern %q: %w", s, err)
+	}
+
+	is.Entries = append(is.Entries, IgnoreEntryMatch(glob))
 
 	return nil
 }
