@@ -133,8 +133,8 @@ func findResourceFiles(dirPath, curDirPath string, ignoreSet *IgnoreSet) ([]stri
 			filePath := path.Join(curDirPath, fileName)
 
 			relPath := filePath[len(dirPath):]
-			if ignoreSet.Match(relPath) {
-				p.Debug(2, "ignoring resource file %s", filePath)
+			if match, why := ignoreSet.Match(relPath); match {
+				p.Debug(2, "ignoring resource file %s (%s)", filePath, why)
 				continue
 			}
 

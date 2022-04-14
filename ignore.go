@@ -19,7 +19,11 @@ type IgnoreSet struct {
 
 type IgnoreEntry interface{}
 
-type IgnoreEntryMatch = glob.Glob
+type IgnoreEntryMatch struct {
+	OriginalPattern string
+	Pattern         string
+	Glob            glob.Glob
+}
 
 func (is *IgnoreSet) LoadDirectoryIfExists(dirPath string) error {
 	filePath := path.Join(dirPath, ".evcli-ignore")
@@ -60,7 +64,9 @@ func (is *IgnoreSet) LoadData(data []byte) error {
 	return nil
 }
 
-func (is *IgnoreSet) addPattern(s string) error {
+func (is *IgnoreSet) addPattern(s0 string) error {
+	s := s0
+
 	if s[0] != '/' && !strings.HasPrefix(s, "**/") {
 		// "foo/bar" matches "bar" files in a "foo" directory at any depth
 		// level. We can expand it to "**/foo/bar.
@@ -78,17 +84,24 @@ func (is *IgnoreSet) addPattern(s string) error {
 		return fmt.Errorf("invalid glob pattern %q: %w", s, err)
 	}
 
-	is.Entries = append(is.Entries, IgnoreEntryMatch(glob))
+	entry := IgnoreEntryMatch{
+		OriginalPattern: s0,
+		Pattern:         s,
+		Glob:            glob,
+	}
+
+	is.Entries = append(is.Entries, entry)
 
 	return nil
 }
 
-func (is *IgnoreSet) Match(filePath string) bool {
+func (is *IgnoreSet) Match(filePath string) (bool, string) {
 	for _, e := range is.Entries {
 		switch v := e.(type) {
 		case IgnoreEntryMatch:
-			if v.Match(filePath) {
-				return true
+			if v.Glob.Match(filePath) {
+				why := fmt.Sprintf("matches pattern %q", v.OriginalPattern)
+				return true, why
 			}
 
 		default:
@@ -96,5 +109,5 @@ func (is *IgnoreSet) Match(filePath string) bool {
 		}
 	}
 
-	return false
+	return false, ""
 }
