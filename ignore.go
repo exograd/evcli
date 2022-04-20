@@ -33,7 +33,6 @@ func (is *IgnoreSet) LoadDirectoryIfExists(dirPath string) error {
 func (is *IgnoreSet) LoadFileIfExists(filePath string) error {
 	data, err := ioutil.ReadFile(filePath)
 	if errors.Is(err, os.ErrNotExist) {
-		fmt.Printf("NOT FOUND CACA: %s\n", filePath)
 		return nil
 	} else if err != nil {
 		return fmt.Errorf("cannot read %s: %w", filePath, err)
