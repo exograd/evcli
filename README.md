@@ -1,3 +1,8 @@
+*This repository contains the version of Evcli compatible with the old
+Eventline SaaS platform. The new version compatible with Eventline open source
+is distributed in the [Eventline
+repository](https://github.com/exograd/eventline).*
+
 # Project
 This repository contains a command line tool to interact with the [Eventline
 platform](https://www.eventline.net).
